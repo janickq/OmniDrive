@@ -18,7 +18,9 @@ public class MoveRobot extends CommandBase
 {
     //Grab the subsystem instance from RobotContainer
     private final static OmniDrive m_drive = RobotContainer.m_omnidrive;
-    private double distance;
+    private double tgtDist, curDist=0;
+    private double curSpeed, tgtSpeed;
+    private double dT = 0.02;
 
     /**
      * Constructor
@@ -26,7 +28,9 @@ public class MoveRobot extends CommandBase
     public MoveRobot(double dist)
     {
         addRequirements(m_drive); // Adds the subsystem to the command
-        this.distance = dist;
+        tgtDist = dist;
+        curDist = 0;
+        curSpeed = 0.5;
     }
 
     /**
@@ -44,7 +48,9 @@ public class MoveRobot extends CommandBase
     @Override
     public void execute()
     {
-        m_drive.setRobotSpeed(0,0,0.1);
+        //Do speed profile
+        m_drive.setRobotSpeed(0,0,curSpeed);
+        curDist += curSpeed*dT;
     }
 
     /**
@@ -63,7 +69,11 @@ public class MoveRobot extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return false;
+        //Check if distance reached
+        if (curDist>=tgtDist)
+            return true;
+        else
+            return false;
     }
 
 }

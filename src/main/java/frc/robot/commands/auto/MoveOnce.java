@@ -18,7 +18,7 @@ public class MoveOnce extends AutoCommand
         /**
          * Calls SimpleDrive at a speed of 50% waits 5 seconds and stops the motors
          */
-        super(new MoveRobot(0.5).withTimeout(1));
+        super(new MoveRobot(Math.PI/2));
         //new StopMotors()); 
     }
 }

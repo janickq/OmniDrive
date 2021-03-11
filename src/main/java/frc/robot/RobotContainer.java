@@ -28,7 +28,7 @@ public class RobotContainer {
 
 
       //Set the default command for the hardware subsytem
-      m_omnidrive.setDefaultCommand(m_teleCmd);
+      m_omnidrive.setDefaultCommand(m_move_once);
 
   }
 
@@ -38,6 +38,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+    // An ExampleCommand will run in autonomous
+    return m_move_once;
+  }
+  public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous
     return m_teleCmd;
   }
