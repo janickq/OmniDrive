@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.TeleCmd;
+import frc.robot.commands.auto.MoveOnce;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.OmniDrive;
 
@@ -17,17 +18,18 @@ public class RobotContainer {
   /**
    * Create the subsystems and gamepad objects
    */
-  public final OmniDrive m_omnidrive;
-  public final OI m_oi;
-  public final TeleCmd m_teleCmd;
+  public final static OmniDrive m_omnidrive = new OmniDrive();
+  public final static OI m_oi = new OI();
+  public final static TeleCmd m_teleCmd = new TeleCmd();
+  public final static MoveOnce m_move_once = new MoveOnce();
   public RobotContainer()
   {
       //Create new instances
-      m_omnidrive = new OmniDrive();
-      m_oi = new OI();
-      m_teleCmd = new TeleCmd(m_omnidrive, m_oi);
+
+
       //Set the default command for the hardware subsytem
       m_omnidrive.setDefaultCommand(m_teleCmd);
+
   }
 
   /**
