@@ -21,16 +21,19 @@ public class MoveRobot extends CommandBase
     private double tgtDist, curDist=0;
     private double curSpeed, tgtSpeed;
     private double dT = 0.02;
+    private boolean endFlag = false;
+    private int profType;
 
     /**
      * Constructor
      */
-    public MoveRobot(double dist)
+    public MoveRobot(int type, double dist, double speed)
     {
         addRequirements(m_drive); // Adds the subsystem to the command
         tgtDist = dist;
         curDist = 0;
-        curSpeed = 0.5;
+        curSpeed = speed;
+        profType = type;
     }
 
     /**
@@ -49,8 +52,19 @@ public class MoveRobot extends CommandBase
     public void execute()
     {
         //Do speed profile
-        m_drive.setRobotSpeed(0,0,curSpeed);
-        curDist += curSpeed*dT;
+        if (curDist<tgtDist) {
+            if (profType==0)
+                m_drive.setRobotSpeed(curSpeed,0,0);
+            else if (profType==1)
+                m_drive.setRobotSpeed(0,curSpeed,0);
+            else if (profType==2)
+                m_drive.setRobotSpeed(0,0,curSpeed);
+            curDist += curSpeed*dT;
+        }
+        else {
+            endFlag = true;
+        }
+//
     }
 
     /**
@@ -69,11 +83,7 @@ public class MoveRobot extends CommandBase
     @Override
     public boolean isFinished()
     {
-        //Check if distance reached
-        if (curDist>=tgtDist)
-            return true;
-        else
-            return false;
+        return endFlag;
     }
 
 }

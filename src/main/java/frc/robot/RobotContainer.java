@@ -21,14 +21,14 @@ public class RobotContainer {
   public final static OmniDrive m_omnidrive = new OmniDrive();
   public final static OI m_oi = new OI();
   public final static TeleCmd m_teleCmd = new TeleCmd();
-  public final static MoveOnce m_move_once = new MoveOnce();
+
   public RobotContainer()
   {
       //Create new instances
 
 
       //Set the default command for the hardware subsytem
-      m_omnidrive.setDefaultCommand(m_move_once);
+      m_omnidrive.setDefaultCommand(m_teleCmd);
 
   }
 
@@ -39,7 +39,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_move_once;
+    return new MoveOnce();
   }
   public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous

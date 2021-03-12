@@ -257,16 +257,23 @@ public class OmniDrive extends SubsystemBase
         pidInputW = speedW;
     }
 
+    /***
+     * 
+     * @param x - x speed in m/s
+     * @param y - y speed in m/s
+     * @param w - rotational speed in rad/s
+     */
     public void setRobotSpeed(double x, double y, double w) {
 
         // The x and y speed are resolved into individual wheel speed
         // 3 wheel omni drive
-        // M0 = [-sin(30)  cos(30)  1]
-        // M1 = [-sin(150) cos(150) 1] * [x y w]
-        // M2 = [-sin(270) cos(270) 1]
-        double speed0 = (-0.5*x + 0.866*y);// + w);
-        double speed1 = (-0.5*x - 0.866*y);// + w);
-        double speed2 = ( x     + 0      );// + w);
+        // R is distance of wheel from robot centre
+        // M0 = [-sin(30)  cos(30)  R]
+        // M1 = [-sin(150) cos(150) R] * [x y w]
+        // M2 = [-sin(270) cos(270) R]
+        double speed0 = (-0.5*x + 0.866*y);// + R*w);
+        double speed1 = (-0.5*x - 0.866*y);// + R*w);
+        double speed2 = ( x     + 0      );// + R*w);
 
         // The rotation speed, w, is controlled separately through the gyro
         setPIDSpeed012(speed0, speed1, speed2, w);
@@ -288,7 +295,7 @@ public class OmniDrive extends SubsystemBase
         curHeading = getYawRad();
         
         //pidInputW is from -1 to 1. Convert to -PI to PI
-        targetHeading += pidInputW*Math.PI * deltaT;   // Integrate speed in heading
+        targetHeading += pidInputW * deltaT;   // Integrate speed in heading
         //Limit targetHeading to -Pi to +Pi
         if (targetHeading>Math.PI) targetHeading = -Math.PI*2 + targetHeading;
         if (targetHeading<-Math.PI) targetHeading = Math.PI*2 + targetHeading;
@@ -310,9 +317,8 @@ public class OmniDrive extends SubsystemBase
     public void periodic()
     {
         System.out.print("obj");
-        if (initCnt<10) {
+        if (initCnt<1) {
             initCnt++;
-            // First initialisation must be done here????????
             gyro.zeroYaw();
             targetHeading = getYawRad();
             return;
@@ -333,8 +339,8 @@ public class OmniDrive extends SubsystemBase
         //D_cobraRaw.setDouble(getCobraRawValue(0)); //Just going to use channel 0 for demo
         //D_cobraVoltage.setDouble(getCobraVoltage(0));
         //D_curHeading.setDouble(curHeading);
-        D_tgtHeading.setDouble(targetHeading);
-        D_navYaw.setDouble(getYawRad());
+        D_tgtHeading.setDouble(targetHeading*180/Math.PI);
+        D_navYaw.setDouble(-gyro.getYaw());
         D_encoderDisp0.setDouble(encoderSpeeds[0]);
         D_encoderDisp1.setDouble(encoderSpeeds[1]);
         D_encoderDisp2.setDouble(encoderSpeeds[2]);
