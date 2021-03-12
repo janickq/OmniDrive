@@ -48,6 +48,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    System.out.println("Hi");
     //m_robotContainer.hardware.doPID();//did not work
   }
 

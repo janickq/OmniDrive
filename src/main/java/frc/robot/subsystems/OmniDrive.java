@@ -43,7 +43,6 @@ public class OmniDrive extends SubsystemBase
     private double[] encoderSpeeds;
     private final Servo servo;
     private final ServoContinuous servoC;
-    private double yawRate, yaw, yaw_2;
     private double curHeading, targetHeading;
     private double deltaT = 0.02;
 
@@ -70,10 +69,7 @@ public class OmniDrive extends SubsystemBase
     private final NetworkTableEntry D_cobraRaw = tab.add("Cobra Raw", 0).getEntry();
     private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
-    private final NetworkTableEntry D_navYawRate = tab.add("Nav YawRate", 0).getEntry();
-    private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
-    private final NetworkTableEntry D_calYawRate = tab.add("Cal YawRate", 0).getEntry();
     private final NetworkTableEntry D_inputDisp = tab.add("Input11", false).getEntry();
     private final NetworkTableEntry D_encoderDisp0 = tab.add("Encoder0", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
@@ -113,6 +109,7 @@ public class OmniDrive extends SubsystemBase
 
         //Rotational controller
         pidControllerW = new PIDController(1.5,0.0,0.05);
+        pidControllerW.enableContinuousInput(-Math.PI, Math.PI);
 
         //Inputs and Outputs for wheel controller
         pidInputs = new double[Constants.MOTOR_NUM];
@@ -128,12 +125,8 @@ public class OmniDrive extends SubsystemBase
 
         // gyro for rotational heading control
         gyro = new AHRS(SPI.Port.kMXP);
-        //gyro.zeroYaw();
-        yaw = yaw_2 = gyro.getYaw();
-        //target = pid input
-        //cur = feedback
-        //Initialisation here don't work. Must do in doPID() after a delay.
-        targetHeading = curHeading =  getYawRad();
+        gyro.zeroYaw();
+        targetHeading = getYawRad();
     }
 
     public double getYawRad() {
@@ -291,19 +284,14 @@ public class OmniDrive extends SubsystemBase
             pidOutputs[i] = Math.max(pidOutputs[i], -1.0);
             //motors[i].set(pidInputs[i]);
         }
-        yaw = getYawRad();
-        double delta = (yaw-yaw_2);
-        yaw_2 = yaw;
-
-        // get gyro.getYaw() returns -180 to 180
-        // Need to handle change from -179 to 179 and vice versa
-        if (delta>Math.PI) delta = Math.PI*2 - delta;
-        if (delta<-Math.PI) delta = Math.PI*2 + delta;
-        curHeading += delta;
-
-        //yawRate = -gyro.getRate()*Math.PI/180;
+        
+        curHeading = getYawRad();
+        
         //pidInputW is from -1 to 1. Convert to -PI to PI
         targetHeading += pidInputW*Math.PI * deltaT;   // Integrate speed in heading
+        //Limit targetHeading to -Pi to +Pi
+        if (targetHeading>Math.PI) targetHeading = -Math.PI*2 + targetHeading;
+        if (targetHeading<-Math.PI) targetHeading = Math.PI*2 + targetHeading;
 
         double pidOutputW = pidControllerW.calculate(curHeading, targetHeading);
 
@@ -321,14 +309,18 @@ public class OmniDrive extends SubsystemBase
     @Override
     public void periodic()
     {
+        System.out.print("obj");
         if (initCnt<10) {
             initCnt++;
             // First initialisation must be done here????????
-            curHeading = targetHeading =  getYawRad();
+            gyro.zeroYaw();
+            targetHeading = getYawRad();
             return;
         }
         outDebug11.set(true);
-        //gyro.getRawGyroZ();
+        //
+        encoders[0].getEncoderDistance();
+
         doPID();
         //setServoAngle(D_servoPos.getDouble(0.0));
         //setMotorSpeedAll(D_motorSpeed.getDouble(0.0));
@@ -340,11 +332,9 @@ public class OmniDrive extends SubsystemBase
         //D_ultraSonic.setDouble(getSonicDistance(true)); //set to true because we want metric
         //D_cobraRaw.setDouble(getCobraRawValue(0)); //Just going to use channel 0 for demo
         //D_cobraVoltage.setDouble(getCobraVoltage(0));
-        D_curHeading.setDouble(curHeading);
+        //D_curHeading.setDouble(curHeading);
         D_tgtHeading.setDouble(targetHeading);
-        D_navYaw.setDouble(-gyro.getYaw());
-        D_navYawRate.setDouble(-gyro.getRate());
-        D_calYawRate.setDouble(yawRate);
+        D_navYaw.setDouble(getYawRad());
         D_encoderDisp0.setDouble(encoderSpeeds[0]);
         D_encoderDisp1.setDouble(encoderSpeeds[1]);
         D_encoderDisp2.setDouble(encoderSpeeds[2]);
