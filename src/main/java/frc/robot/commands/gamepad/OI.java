@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Joystick;
 public class OI
 {
     //Create the joystick
-    Joystick drivePad;
+    public Joystick drivePad;
 
     public OI()
     {

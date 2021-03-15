@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 //WPI imports
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.Constants;
 
 public class OmniDrive extends SubsystemBase
@@ -49,7 +50,7 @@ public class OmniDrive extends SubsystemBase
     /**
      * Sensors
      */
-    //private final DigitalInput input11;
+    private final DigitalInput input10;
     private final DigitalOutput outDebug11;
     private final Cobra cobra;
     private final Ultrasonic sonic;
@@ -70,7 +71,7 @@ public class OmniDrive extends SubsystemBase
     private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
-    private final NetworkTableEntry D_inputDisp = tab.add("Input11", false).getEntry();
+    private final NetworkTableEntry D_inputDisp = tab.add("Input10", false).getEntry();
     private final NetworkTableEntry D_encoderDisp0 = tab.add("Encoder0", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp2 = tab.add("Encoder2", 0).getEntry();
@@ -78,7 +79,7 @@ public class OmniDrive extends SubsystemBase
 
     public OmniDrive() {
         // Motors
-        //input11 = new DigitalInput(11);
+        input10 = new DigitalInput(10);
         outDebug11 = new DigitalOutput(11);
 
         //Omni drive motors
@@ -108,7 +109,7 @@ public class OmniDrive extends SubsystemBase
         }
 
         //Rotational controller
-        pidControllerW = new PIDController(1.5,0.0,0.05);
+        pidControllerW = new PIDController(2.0,0.0,0.1);
         pidControllerW.enableContinuousInput(-Math.PI, Math.PI);
 
         //Inputs and Outputs for wheel controller
@@ -133,7 +134,7 @@ public class OmniDrive extends SubsystemBase
         return -gyro.getYaw()*Math.PI/180;
     }
     public Boolean getSwitch() {
-        return true;//input11.get();
+        return input10.get();
     }
 
     /**
@@ -302,8 +303,8 @@ public class OmniDrive extends SubsystemBase
 
         double pidOutputW = pidControllerW.calculate(curHeading, targetHeading);
 
-        pidOutputW = Math.min(pidOutputW, 1.0);
-        pidOutputW = Math.max(pidOutputW, -1.0);
+        MathUtil.clamp(pidOutputW, -1.0, 1.0);
+
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
             //Need to limit to -1 to + 1
              motors[i].set(pidInputs[i] + pidOutputW);
@@ -333,8 +334,8 @@ public class OmniDrive extends SubsystemBase
         /**
          * Updates for outputs to the shuffleboard
          */
-        //D_inputDisp.setBoolean(getSwitch());
-        //D_sharpIR.setDouble(getIRDistance());
+        D_inputDisp.setBoolean(getSwitch());
+        D_sharpIR.setDouble(getIRDistance());
         //D_ultraSonic.setDouble(getSonicDistance(true)); //set to true because we want metric
         //D_cobraRaw.setDouble(getCobraRawValue(0)); //Just going to use channel 0 for demo
         //D_cobraVoltage.setDouble(getCobraVoltage(0));

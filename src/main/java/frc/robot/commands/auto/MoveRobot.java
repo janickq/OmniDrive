@@ -1,8 +1,8 @@
 package frc.robot.commands.auto;
 
+import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile;
 //WPI imports
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Robot;
 //RobotContainer import
 import frc.robot.RobotContainer;
 
@@ -23,6 +23,10 @@ public class MoveRobot extends CommandBase
     private double dT = 0.02;
     private boolean endFlag = false;
     private int profType;
+    private final TrapezoidProfile.Constraints m_constraints;
+    private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
+    private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
+    private final int m_dir;
 
     /**
      * Constructor
@@ -34,6 +38,22 @@ public class MoveRobot extends CommandBase
         curDist = 0;
         curSpeed = speed;
         profType = type;
+        if (type==2){
+            m_constraints = new TrapezoidProfile.Constraints(1.0*Math.PI, 2.0*Math.PI);
+        }
+        else{
+            m_constraints = new TrapezoidProfile.Constraints(1.0, 2.0);
+        }
+        m_setpoint = new TrapezoidProfile.State(0, 0);
+        if (tgtDist>0) {
+            m_dir = 1;
+        }
+        else {
+            m_dir = -1;
+            tgtDist = -tgtDist;
+        }
+        m_goal = new TrapezoidProfile.State(tgtDist, 0);
+
     }
 
     /**
@@ -51,6 +71,7 @@ public class MoveRobot extends CommandBase
     @Override
     public void execute()
     {
+        /*
         //Do speed profile
         if (curDist<tgtDist) {
             if (profType==0)
@@ -60,6 +81,20 @@ public class MoveRobot extends CommandBase
             else if (profType==2)
                 m_drive.setRobotSpeed(0,0,curSpeed);
             curDist += curSpeed*dT;
+        }
+        else {
+            endFlag = true;
+        }*/
+        var profile = new TrapezoidProfile(m_constraints, m_goal, m_setpoint);
+        m_setpoint = profile.calculate(dT);
+        
+        if (m_setpoint.position<m_goal.position) {
+            if (profType==0)
+                m_drive.setRobotSpeed(m_setpoint.velocity*m_dir,0,0);
+            else if (profType==1)
+                m_drive.setRobotSpeed(0,m_setpoint.velocity*m_dir,0);
+            else if (profType==2)
+                m_drive.setRobotSpeed(0,0,m_setpoint.velocity*m_dir);
         }
         else {
             endFlag = true;

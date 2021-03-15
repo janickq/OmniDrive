@@ -7,9 +7,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.TeleCmd;
-import frc.robot.commands.auto.MoveOnce;
+import frc.robot.commands.auto.MoveTest;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.OmniDrive;
 
@@ -32,6 +34,9 @@ public class RobotContainer {
 
   }
 
+  private void configureButtonBindings(){
+    new JoystickButton(m_oi.drivePad, Button.kA.value).whenPressed(new MoveTest());
+  }
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
@@ -39,7 +44,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new MoveOnce();
+    return new MoveTest();
   }
   public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous
