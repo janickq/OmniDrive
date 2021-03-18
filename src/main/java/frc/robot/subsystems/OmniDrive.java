@@ -326,7 +326,7 @@ public class OmniDrive extends SubsystemBase
         }
         outDebug11.set(true);
         //
-        encoders[0].getEncoderDistance();
+        //encoders[0].getEncoderDistance();
 
         doPID();
         //setServoAngle(D_servoPos.getDouble(0.0));
@@ -337,7 +337,13 @@ public class OmniDrive extends SubsystemBase
         D_inputDisp.setBoolean(getSwitch());
         D_sharpIR.setDouble(getIRDistance());
         //D_ultraSonic.setDouble(getSonicDistance(true)); //set to true because we want metric
-        //D_cobraRaw.setDouble(getCobraRawValue(0)); //Just going to use channel 0 for demo
+        //double s0 = getCobraRawValue(0);
+        //double s1 = getCobraRawValue(1);
+        //double s2 = getCobraRawValue(2);
+       // double s3 = getCobraRawValue(3);
+        //double offset = (s0*-3.0 + s1*-1.0 + s2*1.0 + s3*3.0)/(s0+s1+s2+s3);
+        D_cobraRaw.setDouble(0); //Just going to use channel 0 for demo
+
         //D_cobraVoltage.setDouble(getCobraVoltage(0));
         //D_curHeading.setDouble(curHeading);
         D_tgtHeading.setDouble(targetHeading*180/Math.PI);

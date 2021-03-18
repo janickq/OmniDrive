@@ -7,6 +7,13 @@
 
 package frc.robot;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
+import java.net.SocketException;
+import java.io.File;
+import java.io.IOException;
+
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -25,6 +32,55 @@ public class Robot extends TimedRobot {
   private Command m_teleopCommand;
   private RobotContainer m_robotContainer;
 
+  // public static FakeDS fakeDS;
+  private Thread dsThread = new Thread(
+    () -> {
+      DatagramSocket socket;
+      try {
+        socket = new DatagramSocket();
+      } catch (SocketException e1) {
+        // TODO Auto-generated catch block
+        e1.printStackTrace();
+        return;
+      }
+      InetSocketAddress addr = new InetSocketAddress("127.0.0.1", 1110);
+      byte[] sendData = new byte[6];
+      DatagramPacket packet = new DatagramPacket(sendData, 0, 6, addr);
+      short sendCount = 0;
+      int initCount = 0;
+      while (!Thread.currentThread().isInterrupted()) {
+        if (RobotContainer.m_omnidrive.getSwitch() == false) {
+          try {
+            Thread.sleep(20);
+            generateEnabledDsPacket(sendData, sendCount++);
+            // ~50 disabled packets are required to make the robot actually enable
+            // 1 is definitely not enough.
+            if (initCount < 50) {
+              initCount++;
+              sendData[3] = 0;
+            }
+            packet.setData(sendData);
+            socket.send(packet);
+          } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+          } catch (IOException ex) {
+            // TODO Auto-generated catch block
+            ex.printStackTrace();
+          }
+        }
+      }
+      socket.close();
+    });;
+    
+  private void generateEnabledDsPacket(byte[] data, short sendCount) {
+    data[0] = (byte) (sendCount >> 8);
+    data[1] = (byte) sendCount;
+    data[2] = 0x01; // general data tag
+    data[3] = 0x04; // teleop enabled
+    data[4] = 0x10; // normal data request
+    data[5] = 0x00; // red 1 station
+  }
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -33,6 +89,10 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     // Instantiate our RobotContainer. 
     m_robotContainer = new RobotContainer();
+
+    dsThread.setDaemon(true);
+    dsThread.start();
+
     CameraServer.getInstance().startAutomaticCapture();
     CvSink cvSink = CameraServer.getInstance().getVideo();
     CvSource outputStream = CameraServer.getInstance().putVideo("camera", 640, 480);
@@ -49,7 +109,10 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     System.out.println("Hi");
-    //m_robotContainer.hardware.doPID();//did not work
+
+    if (m_robotContainer.m_omnidrive.getSwitch()==true) {
+      CommandScheduler.getInstance().enable();
+    }
   }
 
   /**
