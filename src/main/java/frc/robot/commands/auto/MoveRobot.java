@@ -31,20 +31,20 @@ public class MoveRobot extends CommandBase
     /**
      * Constructor
      */
-    public MoveRobot(int type, double dist, double speed)
+    public MoveRobot(int type, double dist, double startSpeed, double endSpeed, double maxSpeed)
     {
         addRequirements(m_drive); // Adds the subsystem to the command
         tgtDist = dist;
         curDist = 0;
-        curSpeed = speed;
+        curSpeed = startSpeed;
         profType = type;
         if (type==2){
             m_constraints = new TrapezoidProfile.Constraints(1.0*Math.PI, 2.0*Math.PI);
         }
         else{
-            m_constraints = new TrapezoidProfile.Constraints(1.0, 2.0);
+            m_constraints = new TrapezoidProfile.Constraints(maxSpeed, 0.8);
         }
-        m_setpoint = new TrapezoidProfile.State(0, 0);
+        m_setpoint = new TrapezoidProfile.State(0, startSpeed);
         if (tgtDist>0) {
             m_dir = 1;
         }
@@ -52,7 +52,7 @@ public class MoveRobot extends CommandBase
             m_dir = -1;
             tgtDist = -tgtDist;
         }
-        m_goal = new TrapezoidProfile.State(tgtDist, 0);
+        m_goal = new TrapezoidProfile.State(tgtDist, endSpeed);
 
     }
 

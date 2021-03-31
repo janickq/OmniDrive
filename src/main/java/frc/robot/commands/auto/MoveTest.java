@@ -49,7 +49,7 @@ public class MoveTest extends AutoCommand
     {
 
         super(
-            new MoveRobot(1, 0.5, 0.5),  
+            new MoveRobot(1, 0.5, 0, 0.0, 0.5),  
 
             //selectCmd123_B() // Didn't work
 

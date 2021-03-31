@@ -13,9 +13,9 @@ public class MoveLeft extends AutoCommand
     public MoveLeft()
     {
         super(
-            new MoveRobot(0, -0.5, 0.5),  
-            new MoveRobot(1, -0.5, 0.5),
-            new MoveRobot(0, 0.5, 0.5)  
+            new MoveRobot(0, -0.5, 0, 0.01, 0.5),  
+            new MoveRobot(1, -0.5, 0, 0.01, 0.5),
+            new MoveRobot(0, 0.5, 0, 0.01, 0.5)  
             );
     }
 }

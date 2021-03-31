@@ -90,8 +90,8 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer. 
     m_robotContainer = new RobotContainer();
 
-    dsThread.setDaemon(true);
-    dsThread.start();
+    //dsThread.setDaemon(true);
+    //dsThread.start();
 
     CameraServer.getInstance().startAutomaticCapture();
     CvSink cvSink = CameraServer.getInstance().getVideo();

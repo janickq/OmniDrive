@@ -28,7 +28,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.Constants;
 
-public class OmniDrive extends SubsystemBase
+//Subsystem for omnidrive
+public class OmniDrive2 extends SubsystemBase
 {
     //Creates all necessary hardware interface here for omni-drive
 
@@ -39,20 +40,22 @@ public class OmniDrive extends SubsystemBase
 
     //PID stuff
     private PIDController[] pidControllers;
+    private PIDController pidControllerW;
     private double[] pidInputs;
+    public double pidInputW;
     private double[] pidOutputs;
     private double[] encoderDists;
     private double[] encoderDists_2;
     private double[] encoderSpeeds;
     private double curHeading, targetHeading;
-    private double[] motorOuts;
 
-    //For testing. These should be in another subsystem
     private final Servo servo;
     private final ServoContinuous servoC;
     private double dT = 0.02;
 
-    // Sensors
+    /**
+     * Sensors
+     */
     private final DigitalInput input10;
     private final DigitalOutput outDebug11;
     private final Cobra cobra;
@@ -60,26 +63,29 @@ public class OmniDrive extends SubsystemBase
     private final AnalogInput sharp;
     private final AHRS gyro;
 
-    // Shuffleboard
+    /**
+     * Shuffleboard
+     */
     private final ShuffleboardTab tab = Shuffleboard.getTab("Training");
-    //private final NetworkTableEntry D_servoPos = tab.add("Servo Position", 0).withWidget(BuiltInWidgets.kNumberSlider)
-    //       .withProperties(Map.of("min", 0, "max", 300)).getEntry();
+    private final NetworkTableEntry D_servoPos = tab.add("Servo Position", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            .withProperties(Map.of("min", 0, "max", 300)).getEntry();
+    private final NetworkTableEntry D_motorSpeed = tab.add("Motor Speed", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            .withProperties(Map.of("min", -1, "max", 1)).getEntry();
     private final NetworkTableEntry D_sharpIR = tab.add("Sharp IR", 0).getEntry();
-    //private final NetworkTableEntry D_ultraSonic = tab.add("Ultrasonic", 0).getEntry();
+    private final NetworkTableEntry D_ultraSonic = tab.add("Ultrasonic", 0).getEntry();
     private final NetworkTableEntry D_cobraRaw = tab.add("Cobra Raw", 0).getEntry();
-    //private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
+    private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
-    private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
+    private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_inputDisp = tab.add("Input10", false).getEntry();
     private final NetworkTableEntry D_encoderDisp0 = tab.add("Encoder0", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp2 = tab.add("Encoder2", 0).getEntry();
     private final NetworkTableEntry D_inputW = tab.add("inputW", 0).getEntry();
 
-    //Subsystem for omnidrive
-    public OmniDrive() {
-        
+    public OmniDrive2() {
+        // Motors
         input10 = new DigitalInput(10);
         outDebug11 = new DigitalOutput(11);
 
@@ -96,8 +102,7 @@ public class OmniDrive extends SubsystemBase
         encoderDists = new double[Constants.MOTOR_NUM];
         encoderDists_2 = new double[Constants.MOTOR_NUM];
         encoderSpeeds = new double[Constants.MOTOR_NUM];
-        motorOuts = new double[Constants.MOTOR_NUM];
-
+        
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
             encoders[i] = new Encoder(i*2, i*2+1, false, Encoder.EncodingType.k4X);
             encoders[i].setDistancePerPulse(Constants.KENCODERDISTPERPULSE);
@@ -106,16 +111,20 @@ public class OmniDrive extends SubsystemBase
             encoderDists[i] = encoders[i].getDistance();
         }
         
-        // x, y and w speed controler
-        pidControllers = new PIDController[Constants.PID_NUM];
-        pidControllers[0] = new PIDController(2.0,32.0,0.02);  //x
-        pidControllers[1] = new PIDController(2.0,32.0,0.02);  //y
-        pidControllers[2] = new PIDController(2.0,0.0,0.1);    //w
-        pidControllers[2].enableContinuousInput(-Math.PI, Math.PI);
+        //Wheels controller
+        //Speed controler
+        pidControllers = new PIDController[Constants.MOTOR_NUM];
+        for (int i=0; i<Constants.MOTOR_NUM; i++) {
+            pidControllers[i] = new PIDController(2.0,32.0,0.01);
+        }
+
+        //Rotational controller
+        pidControllerW = new PIDController(2.0,0.0,0.1);
+        pidControllerW.enableContinuousInput(-Math.PI, Math.PI);
 
         //Inputs and Outputs for wheel controller
-        pidInputs = new double[Constants.PID_NUM];
-        pidOutputs = new double[Constants.PID_NUM];
+        pidInputs = new double[Constants.MOTOR_NUM];
+        pidOutputs = new double[Constants.MOTOR_NUM];
 
         servo = new Servo(Constants.SERVO);
         servoC = new ServoContinuous(Constants.SERVO_C);
@@ -228,7 +237,7 @@ public class OmniDrive extends SubsystemBase
     }
 
     /**
-     * Sets the speed of the motor
+     * Sets the speed of all motors. For testing only
      * <p>
      * 
      * @param speed range -1 to 1 (0 stop)
@@ -240,6 +249,7 @@ public class OmniDrive extends SubsystemBase
         }
         
     }
+    
     // CCW is positive
     public void setMotorSpeed012(double speed0, double speed1, double speed2)
     {
@@ -250,6 +260,15 @@ public class OmniDrive extends SubsystemBase
         
     }
     
+    public void setPIDInputs(double speed0, double speed1, double speed2, double speedW)
+    {
+        // Use position control 
+        pidInputs[0] = speed0; 
+        pidInputs[1] = speed1;
+        pidInputs[2] = speed2;
+        pidInputW = speedW; // Integrate speed in heading
+    }
+
     /***
      * 
      * @param x - x speed in m/s
@@ -257,15 +276,26 @@ public class OmniDrive extends SubsystemBase
      * @param w - rotational speed in rad/s
      */
     public void setRobotSpeed(double x, double y, double w) {
-        pidInputs[0] = x; 
-        pidInputs[1] = y;
-        pidInputs[2] = w; 
+
+        // The x and y speed are resolved into individual wheel speed
+        // 3 wheel omni drive
+        // R is distance of wheel from robot centre
+        // M0 = [-sin(30)  cos(30)  R]
+        // M1 = [-sin(150) cos(150) R] * [x y w]
+        // M2 = [-sin(270) cos(270) R]
+
+        double R = 0.0; //We are only interested in the x,y speed for the wheels
+        
+        double speed2 = (-0.5*x + 0.866025*y + R*w);
+        double speed0 = (-0.5*x - 0.866025*y + R*w);
+        double speed1 = ( x     + 0          + R*w);
+
+        // The rotation speed, w, is controlled separately through the gyro
+        setPIDInputs(speed0, speed1, speed2, w);
     }
 
     public void doPID( ){
-
         //This is for translational speed PID
-        //First calculate wheel speed from encoder feedback
         double dcValue = 0.0;
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
             encoderDists[i] = encoders[i].getDistance();
@@ -273,57 +303,39 @@ public class OmniDrive extends SubsystemBase
             dcValue += encoderSpeeds[i];
             encoderDists_2[i] = encoderDists[i];
         }
-
-        //Subtract rotational component from encoder speed
-        //Rotational PID is handled by gyro separately.
-        //Maybe good to combine this dc value with gyro value??????
-        dcValue /= 3;
+        dcValue /= 3;  //This represents the rotational component of the encoder feedback
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
-            encoderSpeeds[i] -= dcValue;
+
+            //Subtract rotational component from encoder speed
+            //Rotational PID is handled by gyro separately.
+            //Maybe good to combine this dc value with gyro value??????
+            encoderSpeeds[i] -= dcValue;  
+
+            //PID control for each wheel
+            pidOutputs[i] = pidControllers[i].calculate(encoderSpeeds[i], pidInputs[i]);
+            pidOutputs[i] = Math.min(pidOutputs[i], 1.0);
+            pidOutputs[i] = Math.max(pidOutputs[i], -1.0);
         }
-
-        //Estimates x and y speed from individual wheel speeds
-        double speedX = (-(encoderSpeeds[0] + encoderSpeeds[2]) + encoderSpeeds[1])/2;
-        double speedY = (-encoderSpeeds[0] + encoderSpeeds[2])/(0.866025*2);
-
-        //PID control for x and y speed
-        pidOutputs[0] = pidControllers[0].calculate(speedX, pidInputs[0]);
-        pidOutputs[1] = pidControllers[1].calculate(speedY, pidInputs[1]);
         
-        //Translate x and y output to wheel outputs
-        // The x and y speed are resolved into individual wheel speed
-        // 3 wheel omni drive
-        // R is distance of wheel from robot centre
-        // M0 = [-sin(30)  cos(30)  R]
-        // M1 = [-sin(150) cos(150) R] * [x y w]
-        // M2 = [-sin(270) cos(270) R]
-        motorOuts[2] = (-0.5*pidOutputs[0] + 0.866025*pidOutputs[1]);
-        motorOuts[0] = (-0.5*pidOutputs[0] - 0.866025*pidOutputs[1]);
-        motorOuts[1] = (     pidOutputs[0] + 0               );
-        
-        /////////////////////////////////////////////////////////////////////////////////////////
         //This is for rotational speed PID
-        /////////////////////////////////////////////////////////////////////////////////////////
+        //This uses position control. Position for input and feedback
         curHeading = getYawRad();
         
-        targetHeading += pidInputs[2]*dT;   
-
+        targetHeading += pidInputW*dT;   
         //Limit targetHeading to -Pi to +Pi
-        if (targetHeading>Math.PI) targetHeading -= Math.PI*2;
-        if (targetHeading<-Math.PI) targetHeading += Math.PI*2;
+        if (targetHeading>Math.PI) targetHeading = -Math.PI*2 + targetHeading;
+        if (targetHeading<-Math.PI) targetHeading = Math.PI*2 + targetHeading;
 
-        pidOutputs[2] = pidControllers[2].calculate(curHeading, targetHeading);
+        double pidOutputW = pidControllerW.calculate(curHeading, targetHeading);
 
-        double max=0;
+        MathUtil.clamp(pidOutputW, -1.0, 1.0);
+
+        //Combine rotational and translational outputs to drive motors
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
-            motorOuts[i] += pidOutputs[2];// - gyro.getRate()/100;   //add w component
-            max = Math.max(max, Math.abs(motorOuts[i]));
-        }
-        if (max<1.0) max = 1.0;   
-        for (int i=0; i<Constants.MOTOR_NUM; i++) {
-             motors[i].set(motorOuts[i]/max);
+            //Need to limit to -1 to + 1 ???????
+             motors[i].set(pidOutputs[i] + pidOutputW);
         }   
-   }
+    }
     /**
      * Code that runs once every robot loop
      */
@@ -359,14 +371,13 @@ public class OmniDrive extends SubsystemBase
         D_cobraRaw.setDouble(0); //Just going to use channel 0 for demo
 
         //D_cobraVoltage.setDouble(getCobraVoltage(0));
-        //D_curHeading.setDouble(curHeading);
         D_curHeading.setDouble(curHeading*180/Math.PI);
         D_tgtHeading.setDouble(targetHeading*180/Math.PI);
         D_navYaw.setDouble(-gyro.getYaw());
         D_encoderDisp0.setDouble(encoders[0].getRaw());//encoderSpeeds[0]);
         D_encoderDisp1.setDouble(encoders[1].getDistance());//encoderSpeeds[1]);
         D_encoderDisp2.setDouble(encoders[2].getDistance());//encoderSpeeds[2]);
-        D_inputW.setDouble(pidInputs[2]);
+        D_inputW.setDouble(pidInputW);
         outDebug11.set(false);
     }
 }
