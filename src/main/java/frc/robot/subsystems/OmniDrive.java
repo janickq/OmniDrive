@@ -56,7 +56,7 @@ public class OmniDrive extends SubsystemBase
     private final DigitalInput input10;
     private final DigitalOutput outDebug11;
     private final Cobra cobra;
-    private final Ultrasonic sonic;
+    //private final Ultrasonic sonic;
     private final AnalogInput sharp;
     private final AHRS gyro;
 
@@ -81,7 +81,7 @@ public class OmniDrive extends SubsystemBase
     public OmniDrive() {
         
         input10 = new DigitalInput(10);
-        outDebug11 = new DigitalOutput(11);
+        outDebug11 = new DigitalOutput(8);
 
         //Omni drive motors
         motors = new TitanQuad[Constants.MOTOR_NUM];
@@ -123,7 +123,7 @@ public class OmniDrive extends SubsystemBase
         // Sensors
         cobra = new Cobra();
         sharp = new AnalogInput(Constants.SHARP);
-        sonic = new Ultrasonic(Constants.SONIC_TRIGG, Constants.SONIC_ECHO);
+        //sonic = new Ultrasonic(Constants.SONIC_TRIGG, Constants.SONIC_ECHO);
 
         // gyro for rotational heading control
         gyro = new AHRS(SPI.Port.kMXP);
@@ -171,21 +171,6 @@ public class OmniDrive extends SubsystemBase
         return (Math.pow(sharp.getAverageVoltage(), -1.2045) * 27.726);
     }
 
-    /**
-     * Call for the distance measured by the Ultrasonic Sensor
-     * <p>
-     * 
-     * @param metric true or false for metric output
-     * @return distance in mm when metric is true, and inches when metric is false
-     */
-    public double getSonicDistance(final boolean metric) {
-        sonic.ping();
-        Timer.delay(0.005);
-        if (metric)
-            return sonic.getRangeMM();
-        else
-            return sonic.getRangeInches();
-    }
 
     /**
      * Call for the current angle from the internal NavX
@@ -256,10 +241,13 @@ public class OmniDrive extends SubsystemBase
      * @param y - y speed in m/s
      * @param w - rotational speed in rad/s
      */
-    public void setRobotSpeed(double x, double y, double w) {
+    public void setRobotSpeedXYW(double x, double y, double w) {
         pidInputs[0] = x; 
         pidInputs[1] = y;
         pidInputs[2] = w; 
+    }
+    public void setRobotSpeedType(int type, double speed) {
+        pidInputs[type] = speed; 
     }
 
     public void doPID( ){
@@ -283,6 +271,7 @@ public class OmniDrive extends SubsystemBase
         }
 
         //Estimates x and y speed from individual wheel speeds
+        //See formula below
         double speedX = (-(encoderSpeeds[0] + encoderSpeeds[2]) + encoderSpeeds[1])/2;
         double speedY = (-encoderSpeeds[0] + encoderSpeeds[2])/(0.866025*2);
 
@@ -294,12 +283,12 @@ public class OmniDrive extends SubsystemBase
         // The x and y speed are resolved into individual wheel speed
         // 3 wheel omni drive
         // R is distance of wheel from robot centre
-        // M0 = [-sin(30)  cos(30)  R]
-        // M1 = [-sin(150) cos(150) R] * [x y w]
-        // M2 = [-sin(270) cos(270) R]
-        motorOuts[2] = (-0.5*pidOutputs[0] + 0.866025*pidOutputs[1]);
+        // M0 = [-sin(150) cos(150) R] * [x y w]    //Left-front wheel
+        // M1 = [-sin(270) cos(270) R]              //Back wheel
+        // M2 = [-sin(30)  cos(30)  R]              //Right-front wheel
         motorOuts[0] = (-0.5*pidOutputs[0] - 0.866025*pidOutputs[1]);
         motorOuts[1] = (     pidOutputs[0] + 0               );
+        motorOuts[2] = (-0.5*pidOutputs[0] + 0.866025*pidOutputs[1]);
         
         /////////////////////////////////////////////////////////////////////////////////////////
         //This is for rotational speed PID
@@ -314,9 +303,10 @@ public class OmniDrive extends SubsystemBase
 
         pidOutputs[2] = pidControllers[2].calculate(curHeading, targetHeading);
 
+        //Limit output to -1.0 to 1.0 as PID outputs may be greater then 1.0
         double max=0;
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
-            motorOuts[i] += pidOutputs[2];// - gyro.getRate()/100;   //add w component
+            motorOuts[i] += pidOutputs[2];          // add w component
             max = Math.max(max, Math.abs(motorOuts[i]));
         }
         if (max<1.0) max = 1.0;   

@@ -62,7 +62,7 @@ public class MoveTest extends AutoCommand
                 Map.ofEntries(
                     Map.entry(CommandSelector.ONE, new MoveLeft()),
                     Map.entry(CommandSelector.TWO, new MoveBack()),
-                    Map.entry(CommandSelector.THREE, new MoveRight()) ),
+                    Map.entry(CommandSelector.THREE, new MoveCurve()) ),
                 MoveTest::selectCmd123
             ) 
         );

@@ -275,7 +275,7 @@ public class OmniDrive2 extends SubsystemBase
      * @param y - y speed in m/s
      * @param w - rotational speed in rad/s
      */
-    public void setRobotSpeed(double x, double y, double w) {
+    public void setRobotSpeedXYW(double x, double y, double w) {
 
         // The x and y speed are resolved into individual wheel speed
         // 3 wheel omni drive

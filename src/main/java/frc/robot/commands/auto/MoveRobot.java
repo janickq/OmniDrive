@@ -18,11 +18,9 @@ public class MoveRobot extends CommandBase
 {
     //Grab the subsystem instance from RobotContainer
     private final static OmniDrive m_drive = RobotContainer.m_omnidrive;
-    private double tgtDist, curDist=0;
-    private double curSpeed, tgtSpeed;
     private double dT = 0.02;
-    private boolean endFlag = false;
-    private int profType;
+    private boolean m_endFlag = false;
+    private int m_profType;
     private final TrapezoidProfile.Constraints m_constraints;
     private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
     private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
@@ -31,28 +29,26 @@ public class MoveRobot extends CommandBase
     /**
      * Constructor
      */
+    //This move the robot a certain distance following a trapezoidal speed profile.
     public MoveRobot(int type, double dist, double startSpeed, double endSpeed, double maxSpeed)
     {
         addRequirements(m_drive); // Adds the subsystem to the command
-        tgtDist = dist;
-        curDist = 0;
-        curSpeed = startSpeed;
-        profType = type;
+
+        m_profType = type;
         if (type==2){
-            m_constraints = new TrapezoidProfile.Constraints(1.0*Math.PI, 2.0*Math.PI);
+            m_constraints = new TrapezoidProfile.Constraints(maxSpeed, 2.0*Math.PI);
         }
         else{
             m_constraints = new TrapezoidProfile.Constraints(maxSpeed, 0.8);
         }
         m_setpoint = new TrapezoidProfile.State(0, startSpeed);
-        if (tgtDist>0) {
-            m_dir = 1;
-        }
-        else {
-            m_dir = -1;
-            tgtDist = -tgtDist;
-        }
-        m_goal = new TrapezoidProfile.State(tgtDist, endSpeed);
+        
+        //Negative distance don't seem to work with the library function????
+        //Easier to make distance positive and use m_dir to keep track of negative speed.
+        m_dir = (dist>0)?1:-1;
+        dist *= m_dir;          
+        
+        m_goal = new TrapezoidProfile.State(dist, endSpeed);
 
     }
 
@@ -71,33 +67,20 @@ public class MoveRobot extends CommandBase
     @Override
     public void execute()
     {
-        /*
-        //Do speed profile
-        if (curDist<tgtDist) {
-            if (profType==0)
-                m_drive.setRobotSpeed(curSpeed,0,0);
-            else if (profType==1)
-                m_drive.setRobotSpeed(0,curSpeed,0);
-            else if (profType==2)
-                m_drive.setRobotSpeed(0,0,curSpeed);
-            curDist += curSpeed*dT;
-        }
-        else {
-            endFlag = true;
-        }*/
+
+        //Create a new profile to calculate the next setpoint(speed) for the profile
         var profile = new TrapezoidProfile(m_constraints, m_goal, m_setpoint);
         m_setpoint = profile.calculate(dT);
         
         if (m_setpoint.position<m_goal.position) {
-            if (profType==0)
-                m_drive.setRobotSpeed(m_setpoint.velocity*m_dir,0,0);
-            else if (profType==1)
-                m_drive.setRobotSpeed(0,m_setpoint.velocity*m_dir,0);
-            else if (profType==2)
-                m_drive.setRobotSpeed(0,0,m_setpoint.velocity*m_dir);
+            m_drive.setRobotSpeedType(m_profType, m_setpoint.velocity*m_dir);
         }
         else {
-            endFlag = true;
+            //distance reached. End the command
+            //This class should be modified so that the profile can end on other conditions like
+            //sensor value etc.
+            m_drive.setRobotSpeedType(m_profType, m_goal.velocity*m_dir);
+            m_endFlag = true;
         }
 //
     }
@@ -108,8 +91,7 @@ public class MoveRobot extends CommandBase
     @Override
     public void end(boolean interrupted)
     {
-        m_drive.setRobotSpeed(0,0,0);
-        m_drive.setMotorSpeedAll(0);
+
     }
 
     /**
@@ -118,7 +100,7 @@ public class MoveRobot extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return endFlag;
+        return m_endFlag;
     }
 
 }
