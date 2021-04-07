@@ -14,6 +14,7 @@ import frc.robot.commands.TeleCmd;
 import frc.robot.commands.auto.MoveTest;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.OmniDrive;
+import frc.robot.subsystems.Sensor;
 
 public class RobotContainer {
 
@@ -23,6 +24,7 @@ public class RobotContainer {
   public final static OmniDrive m_omnidrive = new OmniDrive();
   public final static OI m_oi = new OI();
   public final static TeleCmd m_teleCmd = new TeleCmd();
+  public final static Sensor m_sensor = new Sensor();
 
   public RobotContainer()
   {

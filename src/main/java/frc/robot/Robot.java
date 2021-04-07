@@ -49,7 +49,7 @@ public class Robot extends TimedRobot {
       short sendCount = 0;
       int initCount = 0;
       while (!Thread.currentThread().isInterrupted()) {
-        if (RobotContainer.m_omnidrive.getSwitch() == false) {
+        if (RobotContainer.m_sensor.getSwitch() == false) {
           try {
             Thread.sleep(20);
             generateEnabledDsPacket(sendData, sendCount++);
@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     System.out.println("Hi");
 
-    if (m_robotContainer.m_omnidrive.getSwitch()==true) {
+    if (m_robotContainer.m_sensor.getSwitch()==true) {
       CommandScheduler.getInstance().enable();
     }
   }

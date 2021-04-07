@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 //Java imports
-import java.util.Map;
 
 //Vendor imports
 import com.kauailabs.navx.frc.AHRS;
@@ -20,7 +19,6 @@ import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Ultrasonic;
 import edu.wpi.first.wpilibj.controller.PIDController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 //WPI imports
@@ -67,15 +65,9 @@ public class OmniDrive2 extends SubsystemBase
      * Shuffleboard
      */
     private final ShuffleboardTab tab = Shuffleboard.getTab("Training");
-    private final NetworkTableEntry D_servoPos = tab.add("Servo Position", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", 0, "max", 300)).getEntry();
-    private final NetworkTableEntry D_motorSpeed = tab.add("Motor Speed", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            .withProperties(Map.of("min", -1, "max", 1)).getEntry();
     private final NetworkTableEntry D_sharpIR = tab.add("Sharp IR", 0).getEntry();
-    private final NetworkTableEntry D_ultraSonic = tab.add("Ultrasonic", 0).getEntry();
     private final NetworkTableEntry D_cobraRaw = tab.add("Cobra Raw", 0).getEntry();
-    private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
-    private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
+     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
     private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_inputDisp = tab.add("Input10", false).getEntry();

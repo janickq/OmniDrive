@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 //Java imports
-import java.util.Map;
 
 //Vendor imports
 import com.kauailabs.navx.frc.AHRS;
@@ -17,7 +16,6 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Servo;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -45,26 +43,16 @@ public class OmniDrive extends SubsystemBase
     private double[] motorOuts;
 
     //For testing. These should be in another subsystem
-    private final Servo servo;
-    private final ServoContinuous servoC;
     private double dT = 0.02;
 
     // Sensors
-    private final DigitalInput input10;
     private final DigitalOutput outDebug11;
-    private final Cobra cobra;
-    //private final Ultrasonic sonic;
-    private final AnalogInput sharp;
+
     private final AHRS gyro;
 
     // Shuffleboard
-    private final ShuffleboardTab tab = Shuffleboard.getTab("Training");
-    //private final NetworkTableEntry D_servoPos = tab.add("Servo Position", 0).withWidget(BuiltInWidgets.kNumberSlider)
-    //       .withProperties(Map.of("min", 0, "max", 300)).getEntry();
-    private final NetworkTableEntry D_sharpIR = tab.add("Sharp IR", 0).getEntry();
-    //private final NetworkTableEntry D_ultraSonic = tab.add("Ultrasonic", 0).getEntry();
-    private final NetworkTableEntry D_cobraRaw = tab.add("Cobra Raw", 0).getEntry();
-    //private final NetworkTableEntry D_cobraVoltage = tab.add("Cobra Voltage", 0).getEntry();
+    private final ShuffleboardTab tab = Shuffleboard.getTab("OmniDrive");
+
     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
     private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
@@ -77,7 +65,6 @@ public class OmniDrive extends SubsystemBase
     //Subsystem for omnidrive
     public OmniDrive() {
         
-        input10 = new DigitalInput(10);
         outDebug11 = new DigitalOutput(8);
 
         //Omni drive motors
@@ -114,14 +101,6 @@ public class OmniDrive extends SubsystemBase
         pidInputs = new double[Constants.PID_NUM];
         pidOutputs = new double[Constants.PID_NUM];
 
-        servo = new Servo(Constants.SERVO);
-        servoC = new ServoContinuous(Constants.SERVO_C);
-
-        // Sensors
-        cobra = new Cobra();
-        sharp = new AnalogInput(Constants.SHARP);
-        //sonic = new Ultrasonic(Constants.SONIC_TRIGG, Constants.SONIC_ECHO);
-
         // gyro for rotational heading control
         gyro = new AHRS(SPI.Port.kMXP);
         gyro.zeroYaw();
@@ -131,43 +110,6 @@ public class OmniDrive extends SubsystemBase
     public double getYawRad() {
         return -gyro.getYaw()*Math.PI/180;
     }
-    public Boolean getSwitch() {
-        return input10.get();
-    }
-
-    /**
-     * Call for the raw ADC value
-     * <p>
-     * 
-     * @param channel range 0 - 3 (matches what is on the adc)
-     * @return value between 0 and 2047 (11-bit)
-     */
-    public int getCobraRawValue(final int channel) {
-        return cobra.getRawValue(channel);
-    }
-
-    /**
-     * Call for the voltage from the ADC
-     * <p>
-     * 
-     * @param channel range 0 - 3 (matches what is on the adc)
-     * @return voltage between 0 - 5V (0 - 3.3V if the constructor Cobra(3.3F) is
-     *         used)
-     */
-    public double getCobraVoltage(final int channel) {
-        return cobra.getVoltage(channel);
-    }
-
-    /**
-     * Call for the distance measured by the Sharp IR Sensor
-     * <p>
-     * 
-     * @return value between 0 - 100 (valid data range is 10cm - 80cm)
-     */
-    public double getIRDistance() {
-        return (Math.pow(sharp.getAverageVoltage(), -1.2045) * 27.726);
-    }
-
 
     /**
      * Call for the current angle from the internal NavX
@@ -187,28 +129,9 @@ public class OmniDrive extends SubsystemBase
         gyro.zeroYaw();
     }
 
-  
-    /**
-     * Sets the servo angle
-     * <p>
-     * 
-     * @param degrees degree to set the servo to, range 0° - 300°
-     */
-    public void setServoAngle(final double degrees) {
-        servo.setAngle(degrees);
+    public void resetHeading() {
+        curHeading = targetHeading = getYawRad();
     }
-
-
-    /**
-     * Sets the servo speed
-     * <p>
-     * 
-     * @param speed sets the speed of the servo in continous mode, range -1 to 1
-     */
-    public void setServoSpeed(final double speed) {
-        servoC.set(speed);
-    }
-
     /**
      * Sets the speed of the motor
      * <p>
@@ -326,31 +249,18 @@ public class OmniDrive extends SubsystemBase
             return;
         }
         outDebug11.set(true);
-        //
-        //encoders[0].getEncoderDistance();
 
         doPID();
-        //setServoAngle(D_servoPos.getDouble(0.0));
-        //setMotorSpeedAll(D_motorSpeed.getDouble(0.0));
+
         /**
          * Updates for outputs to the shuffleboard
          */
-        D_inputDisp.setBoolean(getSwitch());
-        D_sharpIR.setDouble(getIRDistance());
-        //D_ultraSonic.setDouble(getSonicDistance(true)); //set to true because we want metric
-        //double s0 = getCobraRawValue(0);
-        //double s1 = getCobraRawValue(1);
-        //double s2 = getCobraRawValue(2);
-       // double s3 = getCobraRawValue(3);
-        //double offset = (s0*-3.0 + s1*-1.0 + s2*1.0 + s3*3.0)/(s0+s1+s2+s3);
-        D_cobraRaw.setDouble(0); //Just going to use channel 0 for demo
 
-        //D_cobraVoltage.setDouble(getCobraVoltage(0));
         //D_curHeading.setDouble(curHeading);
         D_curHeading.setDouble(curHeading*180/Math.PI);
         D_tgtHeading.setDouble(targetHeading*180/Math.PI);
         D_navYaw.setDouble(-gyro.getYaw());
-        D_encoderDisp0.setDouble(encoders[0].getRaw());//encoderSpeeds[0]);
+        D_encoderDisp0.setDouble(encoders[0].getDistance());//encoderSpeeds[0]);
         D_encoderDisp1.setDouble(encoders[1].getDistance());//encoderSpeeds[1]);
         D_encoderDisp2.setDouble(encoders[2].getDistance());//encoderSpeeds[2]);
         D_inputW.setDouble(pidInputs[2]);

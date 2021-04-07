@@ -20,18 +20,18 @@ public class MoveTest extends AutoCommand
     }
 
     static public CommandSelector selectCmd123() {
-        if (RobotContainer.m_omnidrive.getIRDistance()<20)
+        if (RobotContainer.m_sensor.getIRDistance()<20)
             return CommandSelector.ONE;
-        else if (RobotContainer.m_omnidrive.getIRDistance()<40)
+        else if (RobotContainer.m_sensor.getIRDistance()<40)
             return CommandSelector.TWO;
         else
             return CommandSelector.THREE;
     }
 
     static public Command selectCmd123_B() {
-        if (RobotContainer.m_omnidrive.getIRDistance()<20)
+        if (RobotContainer.m_sensor.getIRDistance()<20)
         return new MoveLeft();
-    else if (RobotContainer.m_omnidrive.getIRDistance()<40)
+    else if (RobotContainer.m_sensor.getIRDistance()<40)
         return new MoveBack();
     else
         return new MoveRight();
@@ -39,11 +39,11 @@ public class MoveTest extends AutoCommand
 
     // Use limit switch to select
     static public boolean selectCmd12_SW() {
-        return RobotContainer.m_omnidrive.getSwitch();
+        return RobotContainer.m_sensor.getSwitch();
     }
     // use IR to select
     static public boolean selectCmd12_IR() {
-        return RobotContainer.m_omnidrive.getIRDistance()>30?true:false;
+        return RobotContainer.m_sensor.getIRDistance()>30?true:false;
     }
 	public MoveTest()
     {
