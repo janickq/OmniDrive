@@ -4,18 +4,13 @@ package frc.robot.subsystems;
 
 //Vendor imports
 import com.kauailabs.navx.frc.AHRS;
-import com.studica.frc.Cobra;
-import com.studica.frc.ServoContinuous;
 import com.studica.frc.TitanQuad;
 //import com.studica.frc.TitanQuadEncoder;
 
 import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -56,7 +51,6 @@ public class OmniDrive extends SubsystemBase
     private final NetworkTableEntry D_navYaw = tab.add("Nav Yaw", 0).getEntry();
     private final NetworkTableEntry D_curHeading = tab.add("curHeading", 0).getEntry();
     private final NetworkTableEntry D_tgtHeading = tab.add("tgtHeading", 0).getEntry();
-    private final NetworkTableEntry D_inputDisp = tab.add("Input10", false).getEntry();
     private final NetworkTableEntry D_encoderDisp0 = tab.add("Encoder0", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp2 = tab.add("Encoder2", 0).getEntry();
@@ -65,7 +59,7 @@ public class OmniDrive extends SubsystemBase
     //Subsystem for omnidrive
     public OmniDrive() {
         
-        outDebug11 = new DigitalOutput(8);
+        outDebug11 = new DigitalOutput(11);
 
         //Omni drive motors
         motors = new TitanQuad[Constants.MOTOR_NUM];
@@ -224,12 +218,12 @@ public class OmniDrive extends SubsystemBase
         pidOutputs[2] = pidControllers[2].calculate(curHeading, targetHeading);
 
         //Limit output to -1.0 to 1.0 as PID outputs may be greater then 1.0
-        double max=0;
+        double max=1.0;
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
             motorOuts[i] += pidOutputs[2];          // add w component
             max = Math.max(max, Math.abs(motorOuts[i]));
         }
-        if (max<1.0) max = 1.0;   
+
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
              motors[i].set(motorOuts[i]/max);
         }   

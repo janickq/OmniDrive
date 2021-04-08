@@ -11,7 +11,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.io.File;
+
 import java.io.IOException;
 
 import edu.wpi.cscore.CvSink;
@@ -93,9 +93,9 @@ public class Robot extends TimedRobot {
     //dsThread.setDaemon(true);
     //dsThread.start();
 
-    CameraServer.getInstance().startAutomaticCapture();
-    CvSink cvSink = CameraServer.getInstance().getVideo();
-    CvSource outputStream = CameraServer.getInstance().putVideo("camera", 640, 480);
+    //CameraServer.getInstance().startAutomaticCapture();
+    //CvSink cvSink = CameraServer.getInstance().getVideo();
+    //CvSource outputStream = CameraServer.getInstance().putVideo("camera", 640, 480);
   }
 
   /**
@@ -110,7 +110,7 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     System.out.println("Hi");
 
-    if (m_robotContainer.m_sensor.getSwitch()==true) {
+    if (RobotContainer.m_sensor.getSwitch()==true) {
       CommandScheduler.getInstance().enable();
     }
   }

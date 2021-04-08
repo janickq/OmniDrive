@@ -60,7 +60,13 @@ public class MoveRobot extends CommandBase
     {
         
     }
-
+    /**
+     * Condition to end speed profile
+     */
+    public boolean endCondition()
+    {
+        return false;
+    }
     /**
      * Called continously until command is ended
      */
@@ -71,18 +77,15 @@ public class MoveRobot extends CommandBase
         //Create a new profile to calculate the next setpoint(speed) for the profile
         var profile = new TrapezoidProfile(m_constraints, m_goal, m_setpoint);
         m_setpoint = profile.calculate(dT);
-        
-        if (m_setpoint.position<m_goal.position) {
-            m_drive.setRobotSpeedType(m_profType, m_setpoint.velocity*m_dir);
-        }
-        else {
-            //distance reached. End the command
+        m_drive.setRobotSpeedType(m_profType, m_setpoint.velocity*m_dir);
+
+        if ((m_setpoint.position>=m_goal.position) || endCondition()) {
+            //distance reached or end condition met. End the command
             //This class should be modified so that the profile can end on other conditions like
             //sensor value etc.
             m_drive.setRobotSpeedType(m_profType, m_goal.velocity*m_dir);
             m_endFlag = true;
         }
-//
     }
 
     /**

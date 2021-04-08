@@ -2,11 +2,10 @@ package frc.robot.commands.auto;
 
 import java.util.Map;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import frc.robot.RobotContainer;
 // import the commands
-import frc.robot.commands.auto.MoveRobot;;
+import frc.robot.commands.auto.MoveRobotSense;
 
 /**
  * DriveMotor class
@@ -49,7 +48,8 @@ public class MoveTest extends AutoCommand
     {
 
         super(
-            new MoveRobot(1, 0.5, 0, 0.0, 0.5),  
+            new MoveRobotSense(1, 0.5, 0, 0.0, 0.5, ()->RobotContainer.m_sensor.getIRDistance()<60),
+
 
             //selectCmd123_B() // Didn't work
 
