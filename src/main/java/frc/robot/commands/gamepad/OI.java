@@ -2,16 +2,20 @@ package frc.robot.commands.gamepad;
 
 //Import the joystick class
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class OI
 {
     //Create the joystick
     public Joystick drivePad;
+    public Button buttonStart;
 
     public OI()
     {
         //initialize the joystick 
         drivePad = new Joystick(GamepadConstants.DRIVE_USB_PORT);
+        buttonStart = new JoystickButton(drivePad, GamepadConstants.START_BUTTON);
     }
 
     /**
@@ -177,5 +181,13 @@ public class OI
         public boolean getDriveLeftAnalogButton()
         {
             return drivePad.getRawButton(GamepadConstants.LEFT_ANALOG_BUTTON);
+        }
+        public int getDriveButtons() {
+            for (int i=1; i<32; i++) {
+                if (drivePad.getRawButton(i)) {
+                    return i;
+                }
+            }
+            return -1;
         }
 }

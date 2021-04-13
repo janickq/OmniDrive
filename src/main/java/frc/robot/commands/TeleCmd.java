@@ -1,8 +1,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 import frc.robot.commands.gamepad.OI;
+import frc.robot.subsystems.Menu;
 import frc.robot.subsystems.OmniDrive;
 
 public class TeleCmd extends CommandBase
@@ -12,6 +14,7 @@ public class TeleCmd extends CommandBase
      */
     private final OmniDrive m_omnidrive = RobotContainer.m_omnidrive;
     private final OI m_oi = RobotContainer.m_oi;
+    private final Menu m_menu = RobotContainer.m_menu;
 
     /**
      * Joystick inputs
@@ -28,6 +31,7 @@ public class TeleCmd extends CommandBase
     {
 
         addRequirements(m_omnidrive); //add the traning subsystem as a requirement 
+		//addRequirements(m_menu); //add the traning subsystem as a requirement 
     }
 
     /**
