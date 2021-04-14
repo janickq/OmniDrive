@@ -14,7 +14,7 @@ public class TeleCmd extends CommandBase
      */
     private final OmniDrive m_omnidrive = RobotContainer.m_omnidrive;
     private final OI m_oi = RobotContainer.m_oi;
-    private final Menu m_menu = RobotContainer.m_menu;
+
 
     /**
      * Joystick inputs
@@ -30,8 +30,8 @@ public class TeleCmd extends CommandBase
     public TeleCmd()
     {
 
-        addRequirements(m_omnidrive); //add the traning subsystem as a requirement 
-		//addRequirements(m_menu); //add the traning subsystem as a requirement 
+        addRequirements(m_omnidrive); //add the drive subsystem as a requirement 
+		//addRequirements(m_menu); 
     }
 
     /**

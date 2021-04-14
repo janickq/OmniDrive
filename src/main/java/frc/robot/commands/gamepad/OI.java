@@ -4,18 +4,26 @@ package frc.robot.commands.gamepad;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Globals;
+import frc.robot.RobotContainer;
+import frc.robot.subsystems.Menu;
 
 public class OI
 {
+    private final Menu m_menu = RobotContainer.m_menu;
     //Create the joystick
     public Joystick drivePad;
     public Button buttonStart;
+    public Button buttonA;
+    public Button buttonY;
 
     public OI()
     {
         //initialize the joystick 
         drivePad = new Joystick(GamepadConstants.DRIVE_USB_PORT);
-        buttonStart = new JoystickButton(drivePad, GamepadConstants.START_BUTTON);
+        buttonStart = new JoystickButton(drivePad, GamepadConstants.START_BUTTON);//.whenPressed( m_menu.GetCmd() );
+        buttonA = new JoystickButton(drivePad, GamepadConstants.A_BUTTON);//.whenPressed( ()->{Globals.menuItem--;Globals.menuItem%=4;} );
+        buttonY = new JoystickButton(drivePad, GamepadConstants.Y_BUTTON);//.whenPressed( ()->{Globals.menuItem++;Globals.menuItem%=4;});
     }
 
     /**
