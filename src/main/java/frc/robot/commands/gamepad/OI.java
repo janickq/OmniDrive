@@ -4,13 +4,9 @@ package frc.robot.commands.gamepad;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.Globals;
-import frc.robot.RobotContainer;
-import frc.robot.subsystems.Menu;
 
 public class OI
 {
-    private final Menu m_menu = RobotContainer.m_menu;
     //Create the joystick
     public Joystick drivePad;
     public Button buttonStart;
@@ -190,8 +186,13 @@ public class OI
         {
             return drivePad.getRawButton(GamepadConstants.LEFT_ANALOG_BUTTON);
         }
+        /**
+         * 
+         * Cycle through all buttons to check if any is pressed
+         * @return the number of the gamepad buttons
+         */
         public int getDriveButtons() {
-            for (int i=1; i<32; i++) {
+            for (int i=1; i<=16; i++) {
                 if (drivePad.getRawButton(i)) {
                     return i;
                 }

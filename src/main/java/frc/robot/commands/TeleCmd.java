@@ -1,10 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 import frc.robot.commands.gamepad.OI;
-import frc.robot.subsystems.Menu;
 import frc.robot.subsystems.OmniDrive;
 
 public class TeleCmd extends CommandBase
@@ -12,8 +10,8 @@ public class TeleCmd extends CommandBase
     /**
      * Bring in Subsystem and Gamepad code
      */
-    private final OmniDrive m_omnidrive = RobotContainer.m_omnidrive;
-    private final OI m_oi = RobotContainer.m_oi;
+    private final OmniDrive m_omnidrive;
+    private final OI m_oi;
 
 
     /**
@@ -27,9 +25,10 @@ public class TeleCmd extends CommandBase
     /**
      * Constructor
      */
-    public TeleCmd()
+    public TeleCmd(OmniDrive omnidrive, OI oi)
     {
-
+        m_omnidrive = RobotContainer.m_omnidrive;
+        m_oi = RobotContainer.m_oi;
         addRequirements(m_omnidrive); //add the drive subsystem as a requirement 
 		//addRequirements(m_menu); 
     }
@@ -61,9 +60,6 @@ public class TeleCmd extends CommandBase
         
         m_omnidrive.setRobotSpeedXYW(x, y, w*Math.PI);
 
-        //hardware.setMotorSpeed012(speed0, speed1, speed2);
-        //m_hardware.setPIDSpeed012(speed0, speed1, speed2);
-        //hardware.doPID();
     }
 
     /**

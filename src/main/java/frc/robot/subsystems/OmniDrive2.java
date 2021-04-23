@@ -27,6 +27,7 @@ import edu.wpi.first.wpiutil.math.MathUtil;
 import frc.robot.Constants;
 
 //Subsystem for omnidrive
+//Use individual wheel speed PID method. Ignore!!!!
 public class OmniDrive2 extends SubsystemBase
 {
     //Creates all necessary hardware interface here for omni-drive

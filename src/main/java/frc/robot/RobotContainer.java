@@ -7,13 +7,9 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandGroupBase;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.TeleCmd;
 import frc.robot.commands.auto.MoveTest;
-import frc.robot.commands.auto.MoveTurns;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.Menu;
 import frc.robot.subsystems.OmniDrive;
@@ -21,14 +17,14 @@ import frc.robot.subsystems.Sensor;
 
 public class RobotContainer {
 
-  /**
-   * Create the subsystems and gamepad objects
-   */
+  //subsystems
   public final static OI m_oi = new OI();
   public final static OmniDrive m_omnidrive = new OmniDrive();
-  public final static TeleCmd m_teleCmd = new TeleCmd();
-  public final static Sensor m_sensor = new Sensor();
-  public final static Menu m_menu = new Menu();
+  public final static Sensor m_sensor = new Sensor(); 
+  //user menu
+  public final static Menu m_menu = new Menu(m_oi);
+  //commands
+  public final static TeleCmd m_teleCmd = new TeleCmd(m_omnidrive, m_oi);
 
 
   public RobotContainer()

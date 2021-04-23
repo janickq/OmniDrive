@@ -17,12 +17,9 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 //WPI imports
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
-import frc.robot.commands.gamepad.OI;
 
 public class OmniDrive extends SubsystemBase
 {
-    private final OI m_oi = RobotContainer.m_oi;
     //Creates all necessary hardware interface here for omni-drive
 
     //Motors and encoders
@@ -58,9 +55,6 @@ public class OmniDrive extends SubsystemBase
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp2 = tab.add("Encoder2", 0).getEntry();
     private final NetworkTableEntry D_inputW = tab.add("inputW", 0).getEntry();
-    private final NetworkTableEntry D_button = tab.add("button", 0).getEntry();
-    private final NetworkTableEntry D_menu = tab.add("menu", 0).getEntry();
-
 
     //Subsystem for omnidrive
     public OmniDrive() {
@@ -265,9 +259,6 @@ public class OmniDrive extends SubsystemBase
         D_encoderDisp2.setDouble(encoders[2].getDistance());//encoderSpeeds[2]);
         D_inputW.setDouble(pidInputs[2]);
         outDebug11.set(false);
-
-       double x = m_oi.getRightDriveX();
-        D_menu.setDouble(x);
-    
+  
     }
 }
