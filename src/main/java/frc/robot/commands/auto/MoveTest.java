@@ -60,9 +60,9 @@ public class MoveTest extends AutoCommand
             //Selection command in selectCmd123
             new SelectCommand(
                 Map.ofEntries(
-                    Map.entry(CommandSelector.ONE, new MoveLeft()),
-                    Map.entry(CommandSelector.TWO, new MoveBack()),
-                    Map.entry(CommandSelector.THREE, new MoveCurve()) ),
+                    Map.entry(CommandSelector.ONE, new MoveSq()),
+                    Map.entry(CommandSelector.TWO, new MoveSq()),
+                    Map.entry(CommandSelector.THREE, new MoveSq()) ),
                 MoveTest::selectCmd123
             ) 
         );

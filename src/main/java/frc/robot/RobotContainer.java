@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.TeleCmd;
+import frc.robot.commands.auto.MoveSq;
 import frc.robot.commands.auto.MoveTest;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.Menu;
@@ -42,7 +43,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new MoveTest();
+    return new MoveSq();
   }
   public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous
