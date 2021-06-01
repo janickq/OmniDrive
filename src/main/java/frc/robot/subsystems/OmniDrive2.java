@@ -273,9 +273,9 @@ public class OmniDrive2 extends SubsystemBase
         // The x and y speed are resolved into individual wheel speed
         // 3 wheel omni drive
         // R is distance of wheel from robot centre
-        // M0 = [-sin(30)  cos(30)  R]
-        // M1 = [-sin(150) cos(150) R] * [x y w]
-        // M2 = [-sin(270) cos(270) R]
+        // M2 = [-sin(30)  cos(30)  R]
+        // M0 = [-sin(150) cos(150) R] * [x y w]
+        // M1 = [-sin(270) cos(270) R]
 
         double R = 0.0; //We are only interested in the x,y speed for the wheels
         
