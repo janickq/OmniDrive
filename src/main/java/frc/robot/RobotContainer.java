@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.TeleCmd;
 import frc.robot.commands.auto.MoveSq;
 import frc.robot.commands.auto.MoveTest;
+import frc.robot.commands.auto.MoveTest2;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.Menu;
 import frc.robot.subsystems.OmniDrive;
@@ -43,7 +44,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new MoveSq();
+    return new MoveTest2();
   }
   public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous

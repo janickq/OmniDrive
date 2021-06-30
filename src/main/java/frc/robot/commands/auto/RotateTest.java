@@ -1,8 +1,7 @@
 package frc.robot.commands.auto;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SelectCommand;
-import frc.robot.RobotContainer;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.Globals;
 // import the commands
 import frc.robot.commands.auto.MoveRobot;
 import frc.robot.commands.auto.MoveRobotSense;
@@ -19,8 +18,10 @@ public class RotateTest extends AutoCommand
     {
 
         super(
-            new MoveRobotSense(1, 0.5, 0, 0.0, 0.5,()->false)
-            
+           // new MoveRobotSense(1, 0.5, 0, 0.0, 0.5,()->false)
+            new MoveRobot(2, -Math.PI/2, 0, 0, Math.PI),  
+            new MoveRobot(2, Math.PI/2, 0, 0, Math.PI),
+            new InstantCommand(() -> Globals.runFlag = false )
         );
     }
 }

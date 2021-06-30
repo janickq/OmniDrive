@@ -27,8 +27,12 @@ public class Robot extends TimedRobot {
   private Command m_teleopCommand;
   private RobotContainer m_robotContainer;
   private OmniDrive m_omnidrive;
-
-
+  private Notifier m_follower;
+  // public Robot() {
+  //   addPeriodic(() -> {
+  //       m_omnidrive.doPID();
+  //   }, 0.01, 0.005);
+  // }
    /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -41,8 +45,8 @@ public class Robot extends TimedRobot {
 
     //Run PID in different thread at higher rate
     if (Constants.PID_THREAD ) {
-      Notifier follower = new Notifier(() -> { m_omnidrive.doPID(); });
-      follower.startPeriodic(Constants.PID_DT);
+      m_follower = new Notifier(() -> { m_omnidrive.doPID(); });
+      m_follower.startPeriodic(Constants.PID_DT);
     }
 
     //CameraServer.getInstance().startAutomaticCapture();
