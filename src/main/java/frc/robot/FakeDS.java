@@ -26,7 +26,6 @@ public class FakeDS {
   //     try {
   //       socket = new DatagramSocket();
   //     } catch (SocketException e1) {
-  //       // TODO Auto-generated catch block
   //       e1.printStackTrace();
   //       return;
   //     }
@@ -53,7 +52,6 @@ public class FakeDS {
   //         } catch (InterruptedException ex) {
   //           Thread.currentThread().interrupt();
   //         } catch (IOException ex) {
-  //           // TODO Auto-generated catch block
   //           ex.printStackTrace();
   //         }
   //       }
@@ -75,8 +73,7 @@ public class FakeDS {
   //   try {
   //     m_thread.join(1000);
   //   } catch (InterruptedException ex) {
-  //     // TODO Auto-generated catch block
-  //     ex.printStackTrace();
+   //     ex.printStackTrace();
   //   }
   // }
 
@@ -100,7 +97,6 @@ public class FakeDS {
               try {
                 socket = new DatagramSocket();
               } catch (SocketException e1) {
-                // TODO Auto-generated catch block
                 e1.printStackTrace();
                 return;
               }
@@ -124,7 +120,7 @@ public class FakeDS {
                 } catch (InterruptedException ex) {
                   Thread.currentThread().interrupt();
                 } catch (IOException ex) {
-                  // TODO Auto-generated catch block
+
                   ex.printStackTrace();
                 }
               }
@@ -145,7 +141,6 @@ public class FakeDS {
     try {
       m_thread.join(1000);
     } catch (InterruptedException ex) {
-      // TODO Auto-generated catch block
       ex.printStackTrace();
     }
   }

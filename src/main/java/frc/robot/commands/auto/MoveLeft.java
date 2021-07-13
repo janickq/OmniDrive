@@ -1,5 +1,6 @@
 package frc.robot.commands.auto;
 
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 // import the commands
 import frc.robot.commands.auto.MoveRobot;;
 
@@ -8,7 +9,7 @@ import frc.robot.commands.auto.MoveRobot;;
  * <p>
  * This class creates the inline auto command to drive the motor
  */
-public class MoveLeft extends AutoCommand
+public class MoveLeft extends SequentialCommandGroup
 {
     public MoveLeft()
     {

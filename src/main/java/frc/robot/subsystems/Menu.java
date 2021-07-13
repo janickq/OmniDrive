@@ -25,9 +25,16 @@ public class Menu extends SubsystemBase
     private final ShuffleboardTab tab = Shuffleboard.getTab("Menu");
     private final NetworkTableEntry D_button = tab.add("button", -1).getEntry();
     private final NetworkTableEntry D_menu = tab.add("menu", "?").getEntry();
+    private NetworkTableEntry D_debug[] = new NetworkTableEntry[Globals.DNUM];
+   
     int menuNum=0;
     private final String[] menuName;
-    public Menu(OI oi) {
+
+    public Menu(final OI oi) {
+
+        for (int i=0; i<Globals.DNUM; i++) {
+            D_debug[i] = tab.add(Globals.debugNames[i], -1).getEntry();
+        }
         m_oi = oi;
         m_oi.buttonStart.whenPressed(             
             new SelectCommand(
@@ -60,6 +67,9 @@ public class Menu extends SubsystemBase
       
         D_menu.setString( menuName[Globals.menuItem]);
         D_button.setNumber(m_oi.getDriveButtons());
+        for (int i=0; i<Globals.DNUM; i++) {
+            D_debug[i].setNumber(Globals.debug[i]);
+        }
 
     }
 }

@@ -9,9 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.commands.TeleCmd;
-import frc.robot.commands.auto.MoveSq;
-import frc.robot.commands.auto.MoveTest;
-import frc.robot.commands.auto.MoveTest2;
+import frc.robot.commands.auto.AutoMainCmd;
 import frc.robot.commands.gamepad.OI;
 import frc.robot.subsystems.Menu;
 import frc.robot.subsystems.OmniDrive;
@@ -27,6 +25,7 @@ public class RobotContainer {
   public final static Menu m_menu = new Menu(m_oi);
   //commands
   public final static TeleCmd m_teleCmd = new TeleCmd(m_omnidrive, m_oi);
+  public final static AutoMainCmd m_autoCmd = new AutoMainCmd();
 
 
   public RobotContainer()
@@ -34,7 +33,7 @@ public class RobotContainer {
       //Create new instances
 
       //Set the default command for the hardware subsytem
-      m_omnidrive.setDefaultCommand(m_teleCmd);
+      //m_omnidrive.setDefaultCommand(m_teleCmd);
   }
 
   /**
@@ -44,7 +43,7 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new MoveTest2();
+    return m_autoCmd;
   }
   public Command getTeleopCommand() {
     // An ExampleCommand will run in autonomous

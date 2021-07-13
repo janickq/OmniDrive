@@ -14,9 +14,9 @@ import java.net.SocketException;
 
 import java.io.IOException;
 
-import edu.wpi.cscore.CvSink;
-import edu.wpi.cscore.CvSource;
-import edu.wpi.first.cameraserver.CameraServer;
+//import edu.wpi.cscore.CvSink;
+//import edu.wpi.cscore.CvSource;
+//import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -27,7 +27,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
-public class Robot2 extends TimedRobot {
+public class Robot_notuse extends TimedRobot {
   private Command m_autonomousCommand;
   private Command m_teleopCommand;
   private RobotContainer m_robotContainer;
@@ -39,7 +39,6 @@ public class Robot2 extends TimedRobot {
       try {
         socket = new DatagramSocket();
       } catch (SocketException e1) {
-        // TODO Auto-generated catch block
         e1.printStackTrace();
         return;
       }
@@ -64,7 +63,6 @@ public class Robot2 extends TimedRobot {
           } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
           } catch (IOException ex) {
-            // TODO Auto-generated catch block
             ex.printStackTrace();
           }
         }

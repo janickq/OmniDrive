@@ -3,6 +3,7 @@ package frc.robot.commands.auto;
 import java.util.Map;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 // import the commands
 import frc.robot.commands.auto.MoveRobotSense;
@@ -12,7 +13,7 @@ import frc.robot.commands.auto.MoveRobotSense;
  * <p>
  * This class creates the inline auto command to drive the motor
  */
-public class MoveTest extends AutoCommand
+public class MoveTest extends SequentialCommandGroup
 {
     private enum CommandSelector {
         ONE, TWO, THREE
