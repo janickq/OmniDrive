@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+
 //Java imports
 
 //Vendor imports
@@ -12,11 +13,16 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 //import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.controller.PIDController;
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 //WPI imports
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.OmniDriveOdometry;
+
 
 public class OmniDrive extends SubsystemBase
 {
@@ -32,10 +38,17 @@ public class OmniDrive extends SubsystemBase
     private double[] pidInputs;
     private double[] pidOutputs;
     private double[] encoderDists;
+    private double[] encoderDists_2;
     private double[] encoderSpeeds;
     private double[] wheelSpeeds;
     private double curHeading, targetHeading;
     private double[] motorOuts;
+    
+    // Odometry class for tracking robot pose
+    private final OmniDriveOdometry m_odometry;
+    
+    //DigitalOutput debugOut = new DigitalOutput(8);
+
 
     //For testing. These should be in another subsystem
     private double pid_dT = Constants.PID_DT;
@@ -55,6 +68,9 @@ public class OmniDrive extends SubsystemBase
     private final NetworkTableEntry D_encoderDisp1 = tab.add("Encoder1", 0).getEntry();
     private final NetworkTableEntry D_encoderDisp2 = tab.add("Encoder2", 0).getEntry();
     private final NetworkTableEntry D_inputW = tab.add("inputW", 0).getEntry();
+    private final NetworkTableEntry D_odometry0 = tab.add("odo x", 0).getEntry();
+    private final NetworkTableEntry D_odometry1 = tab.add("odo y", 0).getEntry();
+    private final NetworkTableEntry D_odometry2 = tab.add("odo A", 0).getEntry();
 
     //Subsystem for omnidrive
     public OmniDrive() {
@@ -72,6 +88,7 @@ public class OmniDrive extends SubsystemBase
         encoders = new TitanQuadEncoder[Constants.MOTOR_NUM];
         //vmx encoders = new Encoder[Constants.MOTOR_NUM];
         encoderDists = new double[Constants.MOTOR_NUM];
+        encoderDists_2 = new double[Constants.MOTOR_NUM];
         encoderSpeeds = new double[Constants.MOTOR_NUM];
         wheelSpeeds = new double[Constants.MOTOR_NUM];
         motorOuts = new double[Constants.MOTOR_NUM];
@@ -88,9 +105,9 @@ public class OmniDrive extends SubsystemBase
         // x, y and w speed controler
         pidControllers = new PIDController[Constants.PID_NUM];
         //Speed control
-        pidControllers[0] = new PIDController(1.2,12.0,0.00, pid_dT);  //x
-        pidControllers[1] = new PIDController(1.2,12.0,0.00, pid_dT);  //y 2.0,32.0,0.02
-        pidControllers[2] = new PIDController(2.0,0.0,0.05, pid_dT);    //w
+        pidControllers[0] = new PIDController(1.2,24.0,0.00, pid_dT);  //x
+        pidControllers[1] = new PIDController(1.2,24.0,0.00, pid_dT);  //y 2.0,32.0,0.02
+        pidControllers[2] = new PIDController(2.0,0.0,0.1, pid_dT);    //w
         pidControllers[2].enableContinuousInput(-Math.PI, Math.PI);
 
         //Inputs and Outputs for wheel controller
@@ -101,6 +118,13 @@ public class OmniDrive extends SubsystemBase
         gyro = new AHRS(SPI.Port.kMXP);
         gyro.zeroYaw();
         curHeading = targetHeading = getYawRad();
+
+        m_odometry = new OmniDriveOdometry( new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
+
+    }
+
+    public Pose2d getPose() {
+        return m_odometry.getPose();
     }
 
     public double getYawRad() {
@@ -174,10 +198,11 @@ public class OmniDrive extends SubsystemBase
         double dcValue = 0.0;
         for (int i=0; i<Constants.MOTOR_NUM; i++) {
             //vmx encoderDists[i] = encoders[i].getDistance();
-            //encoderDists[i] = encoders[i].getEncoderDistance();
-            //wheelSpeeds[i] = encoderSpeeds[i] = (encoderDists[i]-encoderDists_2[i])/pid_dT;
+            encoderDists[i] = encoders[i].getEncoderDistance();
+            wheelSpeeds[i] = encoderSpeeds[i] = (encoderDists[i]-encoderDists_2[i])/pid_dT;
+            encoderDists_2[i] = encoderDists[i];
             //encoders[i].getSpeed() in rpm
-            wheelSpeeds[i] = encoderSpeeds[i] = -encoders[i].getSpeed()*Math.PI*0.1/60;
+            //wheelSpeeds[i] = encoderSpeeds[i] = -encoders[i].getSpeed()*Math.PI*0.1/60;
             dcValue += wheelSpeeds[i];
         }
 
@@ -254,6 +279,10 @@ public class OmniDrive extends SubsystemBase
         if (!Constants.PID_THREAD ) {
             doPID();
         }
+        //Use PIDInputs
+        m_odometry.update(pidInputs[0]*pid_dT, pidInputs[1]*pid_dT, pidInputs[2]*pid_dT);
+
+        //Use feedback signal. Should be more accurate?
 
         /**
          * Updates for outputs to the shuffleboard
@@ -272,6 +301,15 @@ public class OmniDrive extends SubsystemBase
         D_encoderDisp1.setDouble(encoderSpeeds[1]);//encoders[1].getEncoderDistance());//encoderSpeeds[1]);
         D_encoderDisp2.setDouble(encoderSpeeds[2]);//encoderSpeeds[2]);
         D_inputW.setDouble(pidInputs[2]);
+        double [] value;
+        value = new double[3];
+        value[0] = m_odometry.getPose().getTranslation().getX();
+        value[1] = m_odometry.getPose().getTranslation().getY();
+        value[2] = m_odometry.getPose().getRotation().getDegrees();
+
+        D_odometry0.setDouble(value[0]);
+        D_odometry1.setDouble(value[1]);
+        D_odometry2.setDouble(value[2]);
   
     }
 }
