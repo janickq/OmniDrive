@@ -61,7 +61,6 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    System.out.println("Hi");
 
     if (RobotContainer.m_sensor.getSwitch()==true) {
       CommandScheduler.getInstance().enable();

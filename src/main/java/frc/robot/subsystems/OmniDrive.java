@@ -37,6 +37,7 @@ public class OmniDrive extends SubsystemBase
     private PIDController[] pidControllers;
     private double[] pidInputs;
     private double[] pidOutputs;
+    private double[] pidFBs;
     private double[] encoderDists;
     private double[] encoderDists_2;
     private double[] encoderSpeeds;
@@ -113,6 +114,7 @@ public class OmniDrive extends SubsystemBase
         //Inputs and Outputs for wheel controller
         pidInputs = new double[Constants.PID_NUM];
         pidOutputs = new double[Constants.PID_NUM];
+        pidFBs = new double[Constants.PID_NUM];
 
         // gyro for rotational heading control
         gyro = new AHRS(SPI.Port.kMXP);
@@ -218,11 +220,13 @@ public class OmniDrive extends SubsystemBase
         //See formula below
         double speedX = (-(wheelSpeeds[0] + wheelSpeeds[2]) + wheelSpeeds[1])/2;
         double speedY = (-wheelSpeeds[0] + wheelSpeeds[2])/(0.866025*2);
+        pidFBs[0] = speedX;
+        pidFBs[1] = speedX;
 
         //PID control for x and y speed
         //Speed control + feedforward
-        pidOutputs[0] = pidControllers[0].calculate(speedX, pidInputs[0]) + pidInputs[0]*0.0;
-        pidOutputs[1] = pidControllers[1].calculate(speedY, pidInputs[1]) + pidInputs[1]*0.0;
+        pidOutputs[0] = pidControllers[0].calculate(speedX, pidInputs[0]) + pidInputs[0]*1.0;
+        pidOutputs[1] = pidControllers[1].calculate(speedY, pidInputs[1]) + pidInputs[1]*1.0;
         
         //Translate x and y output to wheel outputs
         // The x and y speed are resolved into individual wheel speed
@@ -245,6 +249,10 @@ public class OmniDrive extends SubsystemBase
         //Limit targetHeading to -Pi to +Pi
         if (targetHeading>Math.PI) targetHeading -= Math.PI*2;
         if (targetHeading<-Math.PI) targetHeading += Math.PI*2;
+        pidFBs[2] = targetHeading-curHeading;
+        if (pidFBs[2]>Math.PI) pidFBs[2] -= Math.PI*2;
+        if (pidFBs[2]<-Math.PI) pidFBs[2] += Math.PI*2;
+        pidFBs[2] /= pid_dT;
 
         pidOutputs[2] = pidControllers[2].calculate(curHeading, targetHeading);
 
@@ -280,6 +288,7 @@ public class OmniDrive extends SubsystemBase
             doPID();
         }
         //Use PIDInputs
+        //m_odometry.update(pidFBs[0]*pid_dT, pidFBs[1]*pid_dT, pidFBs[2]*pid_dT);
         m_odometry.update(pidInputs[0]*pid_dT, pidInputs[1]*pid_dT, pidInputs[2]*pid_dT);
 
         //Use feedback signal. Should be more accurate?

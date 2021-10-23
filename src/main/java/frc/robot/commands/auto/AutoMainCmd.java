@@ -24,29 +24,33 @@ import frc.robot.commands.auto.RotateTest;
  */
 public class AutoMainCmd extends SequentialCommandGroup
 {   
-    TrajectoryConfig config =
-    new TrajectoryConfig(
-            0.5, 0.5);
+    private static TrajectoryConfig config = new TrajectoryConfig(0.5, 0.5);
             
-    Trajectory exampleTrajectory =
+    private static Trajectory exampleTrajectory =
     TrajectoryGenerator.generateTrajectory(
         // Start at the origin facing the +X direction
         new Pose2d(0, 0, new Rotation2d(0)),
         // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+        List.of(new Translation2d(1.0, 0.5), new Translation2d(1.0, 1.0)),
         // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(3, 0, new Rotation2d(0)),
+        new Pose2d(0, 1, new Rotation2d(0)),
         config);
 
 	public AutoMainCmd()
-    {new OmniControllerCommand(
-        exampleTrajectory,
-        RobotContainer.m_omnidrive.getPose(),
-        // Position contollers
-        new PIDController(1, 0, 0),
-        new PIDController(1, 0, 0),
-        new ProfiledPIDController(1, 0, 0, new Constraints(Math.PI, Math.PI) ),
-        RobotContainer.m_omnidrive);
+    {
+        
+        super (
+            //new MoveRobot(2, -Math.PI/4, 0, 0, Math.PI) ,
+            new OmniControllerCommand(
+                exampleTrajectory,
+                RobotContainer.m_omnidrive.getPose(),
+                // Position contollers
+                new PIDController(0.5, 0, 0),
+                new PIDController(0.5, 0, 0),
+                new ProfiledPIDController(1, 0, 0, new Constraints(Math.PI, Math.PI) ),
+                RobotContainer.m_omnidrive)
+
+            );
 
         // super(
         //     new MoveRobot(2, -Math.PI/4, 0, 0, Math.PI),  

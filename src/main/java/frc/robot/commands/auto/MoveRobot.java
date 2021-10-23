@@ -60,7 +60,7 @@ public class MoveRobot extends CommandBase
      */
     @Override
     public void initialize()
-    {
+    {   
         m_setpoint = new TrapezoidProfile.State(0, _startSpeed);
         m_endFlag = false;
     }
@@ -77,7 +77,6 @@ public class MoveRobot extends CommandBase
     @Override
     public void execute()
     {
-
         //Create a new profile to calculate the next setpoint(speed) for the profile
         var profile = new TrapezoidProfile(m_constraints, m_goal, m_setpoint);
         m_setpoint = profile.calculate(dT);

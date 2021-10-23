@@ -17,6 +17,8 @@ import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.MecanumControllerCommand;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.OmniDrive;
@@ -56,7 +58,8 @@ public class OmniControllerCommand extends CommandBase {
   private final PIDController m_xController;
   private final PIDController m_yController;
   private final ProfiledPIDController m_thetaController;
-
+ MecanumControllerCommand m_ram;
+ RamseteCommand m_cm;
 
   /**
    * Constructs a new MecanumControllerCommand that when executed will follow the provided
@@ -99,10 +102,12 @@ public class OmniControllerCommand extends CommandBase {
       "thetaController", "OmniControllerCommand");
     
     addRequirements(requirements);
+    System.out.println("OmniCreate");
   }
 
   @Override
   public void initialize() {
+    System.out.println("Omni");
     var initialState = m_trajectory.sample(0);
 
     // Sample final pose to get robot rotation
@@ -123,6 +128,7 @@ public class OmniControllerCommand extends CommandBase {
   @Override
   @SuppressWarnings("LocalVariableName")
   public void execute() {
+    System.out.println("xxx");
     double curTime = m_timer.get();
     double dt = curTime - m_prevTime;
 
@@ -149,6 +155,8 @@ public class OmniControllerCommand extends CommandBase {
 
     targetXVel += vRef * poseError.getRotation().getCos();
     targetYVel += vRef * poseError.getRotation().getSin();
+    //targetXVel = vRef * poseError.getRotation().getCos();
+    //targetYVel = vRef * poseError.getRotation().getSin();
 
     m_prevSpeeds = new ChassisSpeeds(targetXVel, targetYVel, targetAngularVel);
     m_drive.setRobotSpeedXYW(targetXVel, targetYVel, targetAngularVel);
@@ -159,6 +167,7 @@ public class OmniControllerCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     m_timer.stop();
+    m_drive.setRobotSpeedXYW(0,0,0);
   }
 
   @Override
