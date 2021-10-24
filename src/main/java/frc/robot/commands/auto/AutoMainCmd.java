@@ -9,13 +9,13 @@ import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
-import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.RobotContainer;
 // import the commands
 import frc.robot.commands.auto.MoveRobot;
 import frc.robot.commands.auto.RotateTest;
+import frc.robot.MyGenerateTrajectory;
 
 /**
  * DriveMotor class
@@ -25,23 +25,22 @@ import frc.robot.commands.auto.RotateTest;
 public class AutoMainCmd extends SequentialCommandGroup
 {   
     private static TrajectoryConfig config = new TrajectoryConfig(0.5, 0.5);
-            
+
+    private static List<Translation2d> waypoints = List.of(
+        new Translation2d(0.0, 0.0), //start
+        new Translation2d(1.0, 0.5), 
+        new Translation2d(1.0, 1.0), 
+        new Translation2d(0.1, 1.0)
+      );        
+
     private static Trajectory exampleTrajectory =
-    TrajectoryGenerator.generateTrajectory(
-        // Start at the origin facing the +X direction
-        new Pose2d(0, 0, new Rotation2d(0)),
-        // Pass through these two interior waypoints, making an 's' curve path
-        List.of(new Translation2d(1.0, 0.5), new Translation2d(1.0, 1.0)),
-        // End 3 meters straight ahead of where we started, facing forward
-        new Pose2d(0, 1, new Rotation2d(0)),
-        config);
+    MyGenerateTrajectory.generateTrajectory(waypoints,config, 0.05);
 
 	public AutoMainCmd()
     {
         
         super (
-            //new MoveRobot(2, -Math.PI/4, 0, 0, Math.PI) ,
-            new OmniControllerCommand(
+             new OmniControllerCommand(
                 exampleTrajectory,
                 RobotContainer.m_omnidrive.getPose(),
                 // Position contollers

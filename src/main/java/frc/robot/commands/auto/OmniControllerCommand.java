@@ -90,24 +90,22 @@ public class OmniControllerCommand extends CommandBase {
                                 PIDController yController,
                                 ProfiledPIDController thetaController,
                                 Subsystem... requirements) {
-    m_trajectory = requireNonNullParam(trajectory, "trajectory", "OmniControllerCommand");
+
+    m_trajectory = trajectory;
     m_pose = pose;
     m_feedforward = new SimpleMotorFeedforward(0, 0, 0);
 
-    m_xController = requireNonNullParam(xController,
-      "xController", "OmniControllerCommand");
-    m_yController = requireNonNullParam(yController,
-      "xController", "OmniControllerCommand");
-    m_thetaController = requireNonNullParam(thetaController,
-      "thetaController", "OmniControllerCommand");
+    m_xController = xController;
+    m_yController = yController;
+    m_thetaController = thetaController;
     
     addRequirements(requirements);
-    System.out.println("OmniCreate");
+    System.out.println("OmniControllerCommandCreate");
   }
 
   @Override
   public void initialize() {
-    System.out.println("Omni");
+    System.out.println("OmniControllerCommandInit");
     var initialState = m_trajectory.sample(0);
 
     // Sample final pose to get robot rotation
@@ -128,8 +126,10 @@ public class OmniControllerCommand extends CommandBase {
   @Override
   @SuppressWarnings("LocalVariableName")
   public void execute() {
-    System.out.println("xxx");
+    //System.out.println("xxx");
     double curTime = m_timer.get();
+
+    //Check dt... Maybe just use constant 0.02 ???????????????????????????????
     double dt = curTime - m_prevTime;
 
     var desiredState = m_trajectory.sample(curTime);
@@ -167,6 +167,8 @@ public class OmniControllerCommand extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     m_timer.stop();
+    //Currently set Robot to stop.
+    //Should be done outide?????????????????????????????
     m_drive.setRobotSpeedXYW(0,0,0);
   }
 
