@@ -25,6 +25,8 @@ import frc.robot.subsystems.OmniDrive;
 
 import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
 
+import java.util.function.Supplier;
+
 /**
  * A command that uses two PID controllers ({@link PIDController}) and a
  * ProfiledPIDController ({@link ProfiledPIDController}) to follow a trajectory
@@ -51,9 +53,10 @@ public class OmniControllerCommand extends CommandBase {
   private ChassisSpeeds m_prevSpeeds;
   private double m_prevTime;
   private Pose2d m_finalPose;
+  private double curTime;
 
   private final Trajectory m_trajectory;
-  private final Pose2d m_pose;
+  private final Supplier<Pose2d> m_pose;
   private final SimpleMotorFeedforward m_feedforward;
   private final PIDController m_xController;
   private final PIDController m_yController;
@@ -85,7 +88,7 @@ public class OmniControllerCommand extends CommandBase {
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "ParameterName"})
   public OmniControllerCommand(Trajectory trajectory,
-                                Pose2d pose,
+                                Supplier<Pose2d> pose,
                                 PIDController xController,
                                 PIDController yController,
                                 ProfiledPIDController thetaController,
@@ -121,13 +124,14 @@ public class OmniControllerCommand extends CommandBase {
 
     m_timer.reset();
     m_timer.start();
+    m_prevTime = curTime = 0;
   }
 
   @Override
   @SuppressWarnings("LocalVariableName")
   public void execute() {
     //System.out.println("xxx");
-    double curTime = m_timer.get();
+    curTime = m_timer.get();
 
     //Check dt... Maybe just use constant 0.02 ???????????????????????????????
     double dt = curTime - m_prevTime;
@@ -135,31 +139,31 @@ public class OmniControllerCommand extends CommandBase {
     var desiredState = m_trajectory.sample(curTime);
     var desiredPose = desiredState.poseMeters;
 
-    var poseError = desiredPose.relativeTo(m_pose);
+    var poseError = desiredPose.relativeTo(m_pose.get());
 
     double targetXVel = m_xController.calculate(
-        m_pose.getTranslation().getX(),
+        m_pose.get().getTranslation().getX(),
         desiredPose.getTranslation().getX());
 
     double targetYVel = m_yController.calculate(
-        m_pose.getTranslation().getY(),
+        m_pose.get().getTranslation().getY(),
         desiredPose.getTranslation().getY());
 
     // The robot will go to the desired rotation of the final pose in the trajectory,
     // not following the poses at individual states.
     double targetAngularVel = m_thetaController.calculate(
-        m_pose.getRotation().getRadians(),
+        m_pose.get().getRotation().getRadians(),
         m_finalPose.getRotation().getRadians());
 
-    double vRef = desiredState.velocityMetersPerSecond;
+    double vRef = Math.abs(desiredState.velocityMetersPerSecond);
 
-    targetXVel += vRef * poseError.getRotation().getCos();
-    targetYVel += vRef * poseError.getRotation().getSin();
-    //targetXVel = vRef * poseError.getRotation().getCos();
-    //targetYVel = vRef * poseError.getRotation().getSin();
+    //targetXVel += vRef * poseError.getRotation().getCos();
+    //targetYVel += vRef * poseError.getRotation().getSin();
+    targetXVel = vRef * poseError.getRotation().getCos();
+    targetYVel = vRef * poseError.getRotation().getSin();
 
-    m_prevSpeeds = new ChassisSpeeds(targetXVel, targetYVel, targetAngularVel);
-    m_drive.setRobotSpeedXYW(targetXVel, targetYVel, targetAngularVel);
+    m_prevSpeeds = new ChassisSpeeds(targetXVel, targetYVel, 0);//targetAngularVel);
+    m_drive.setRobotSpeedXYW(targetXVel, targetYVel, 0);//targetAngularVel);
     m_prevTime = curTime;
 
   }

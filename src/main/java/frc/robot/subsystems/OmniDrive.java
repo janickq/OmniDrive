@@ -106,8 +106,8 @@ public class OmniDrive extends SubsystemBase
         // x, y and w speed controler
         pidControllers = new PIDController[Constants.PID_NUM];
         //Speed control
-        pidControllers[0] = new PIDController(1.2,24.0,0.00, pid_dT);  //x
-        pidControllers[1] = new PIDController(1.2,24.0,0.00, pid_dT);  //y 2.0,32.0,0.02
+        pidControllers[0] = new PIDController(1.2,12.0,0.00, pid_dT);  //x
+        pidControllers[1] = new PIDController(1.2,12.0,0.00, pid_dT);  //y 2.0,32.0,0.02
         pidControllers[2] = new PIDController(2.0,0.0,0.1, pid_dT);    //w
         pidControllers[2].enableContinuousInput(-Math.PI, Math.PI);
 
@@ -225,8 +225,8 @@ public class OmniDrive extends SubsystemBase
 
         //PID control for x and y speed
         //Speed control + feedforward
-        pidOutputs[0] = pidControllers[0].calculate(speedX, pidInputs[0]) + pidInputs[0]*1.0;
-        pidOutputs[1] = pidControllers[1].calculate(speedY, pidInputs[1]) + pidInputs[1]*1.0;
+        pidOutputs[0] = pidControllers[0].calculate(speedX, pidInputs[0]) + pidInputs[0]*0.0;
+        pidOutputs[1] = pidControllers[1].calculate(speedY, pidInputs[1]) + pidInputs[1]*0.0;
         
         //Translate x and y output to wheel outputs
         // The x and y speed are resolved into individual wheel speed
