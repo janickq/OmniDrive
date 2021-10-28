@@ -23,8 +23,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.OmniDrive;
 
-import static edu.wpi.first.wpilibj.util.ErrorMessages.requireNonNullParam;
-
 import java.util.function.Supplier;
 
 /**
@@ -125,6 +123,7 @@ public class OmniControllerCommand extends CommandBase {
     m_timer.reset();
     m_timer.start();
     m_prevTime = curTime = 0;
+
   }
 
   @Override
@@ -155,12 +154,15 @@ public class OmniControllerCommand extends CommandBase {
         m_pose.get().getRotation().getRadians(),
         m_finalPose.getRotation().getRadians());
 
-    double vRef = Math.abs(desiredState.velocityMetersPerSecond);
+    double vRef = desiredState.velocityMetersPerSecond;
 
     //targetXVel += vRef * poseError.getRotation().getCos();
     //targetYVel += vRef * poseError.getRotation().getSin();
     targetXVel = vRef * poseError.getRotation().getCos();
     targetYVel = vRef * poseError.getRotation().getSin();
+
+    // System.out.printf("t:%5.2f, x:%5.2f, y:%5.2f, v:%5.2f\n", curTime, desiredPose.getTranslation().getX(), 
+    // desiredPose.getTranslation().getY(), desiredState.velocityMetersPerSecond);
 
     m_prevSpeeds = new ChassisSpeeds(targetXVel, targetYVel, 0);//targetAngularVel);
     m_drive.setRobotSpeedXYW(targetXVel, targetYVel, 0);//targetAngularVel);

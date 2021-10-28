@@ -19,8 +19,8 @@ public class GamepadConstants
     public static final int START_BUTTON        = 8;
     public static final int LEFT_ANALOG_BUTTON  = 9;
     public static final int RIGHT_ANALOG_BUTTON = 10;
-    public static final int PS4_BUTTON          = 13;
-    public static final int TOUCHPAD_BUTTON     = 14;
+    public static final int PS4_BUTTON          = 11;
+    public static final int TOUCHPAD_BUTTON     = 12;
 
     //Joystick
     public static final int LEFT_ANALOG_X       = 0;

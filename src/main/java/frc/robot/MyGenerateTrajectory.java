@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryGenerator;
 public class MyGenerateTrajectory {
 
     //Generate trajectory given a list of waypoints
-    public static Trajectory generateTrajectory( List<Translation2d> wp, TrajectoryConfig config, double R) {
-        //Generate intermediate waypoints
+    public Trajectory generateTrajectory( List<Translation2d> wp, TrajectoryConfig config, double R) {
+
         List<Translation2d> wp2 = new ArrayList<Translation2d>();
         List<Pose2d> waypoints = new ArrayList<Pose2d>();
         Pose2d p;
@@ -66,15 +66,22 @@ public class MyGenerateTrajectory {
 
             p = new Pose2d(x0, y0, angle);
             waypoints.add(p);
+            //System.out.println(p);    //Print for debug
             p = new Pose2d(x1, y1, angle);
             waypoints.add(p);
             //System.out.println(p);
+            //System.out.printf("%d x:%5.2f, y:%5.2f, a:%5.2f", i, x0, y0, Math.atan2(dy,dx));
         }
 
         //quintic hermite splines
         //Can control waypoints angle
         Trajectory traj = TrajectoryGenerator.generateTrajectory(waypoints, config);
 
+        //Debug
+        for (double i=0.0; i<=traj.getTotalTimeSeconds(); i+=0.02) {
+            p = traj.sample(i).poseMeters;
+            System.out.println(p);
+        }
         //Clamped cubic spline
         //Did not work well. In fact it's really bad !!!!!!!!
         //Generates car-like path
@@ -91,4 +98,3 @@ public class MyGenerateTrajectory {
     }
 
 }
-

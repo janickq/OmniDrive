@@ -4,8 +4,6 @@ import java.util.List;
 
 import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.ProfiledPIDController;
-import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryConfig;
@@ -26,20 +24,20 @@ import frc.robot.MyGenerateTrajectory;
 public class AutoMainCmd extends SequentialCommandGroup
 {   
 
-    private static CentripetalAccelerationConstraint curveConstraint = new CentripetalAccelerationConstraint(1.0);
-    private static TrajectoryConfig config = new TrajectoryConfig(0.5, 0.5).addConstraint(curveConstraint);
+    static private CentripetalAccelerationConstraint curveConstraint = new CentripetalAccelerationConstraint(1.0);
+    static private TrajectoryConfig config = new TrajectoryConfig(0.5, 0.5).addConstraint(curveConstraint).setReversed(false);
 
-    private static List<Translation2d> waypoints = List.of(
+    static private List<Translation2d> waypoints = List.of(
         new Translation2d(0.0, 0.0), //start
-        new Translation2d(0.0, 1.0), 
-        new Translation2d(1.0, 1.0)
-        // new Translation2d(1.0, 0.5), 
-        // new Translation2d(1.0, 1.0), 
-        // new Translation2d(0.0, 1.0)
+        new Translation2d(0.5, 0.5), 
+        new Translation2d(1.0, 0.5), 
+        new Translation2d(1.0, 1.0), 
+        new Translation2d(0.0, 1.0)
       );        
 
-    private static Trajectory exampleTrajectory =
-    MyGenerateTrajectory.generateTrajectory(waypoints,config, 0.05);
+    static MyGenerateTrajectory myGenerateTrajectory = new MyGenerateTrajectory();
+    static private Trajectory exampleTrajectory =
+    myGenerateTrajectory.generateTrajectory(waypoints, config, 0.05);
 
 	public AutoMainCmd()
     {

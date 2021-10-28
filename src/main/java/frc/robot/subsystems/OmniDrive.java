@@ -276,7 +276,7 @@ public class OmniDrive extends SubsystemBase
     @Override
     public void periodic()
     {
-        System.out.print("obj");
+ 
         if (initCnt<1) {
             initCnt++;
             gyro.zeroYaw();
