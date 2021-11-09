@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "com.kauailabs.wsr.GradleRIO" version "2020.3.2.12"
+    id "com.kauailabs.wsr.GradleRIO" version "run.wpilib.update"
 }
 
 sourceCompatibility = JavaVersion.VERSION_11

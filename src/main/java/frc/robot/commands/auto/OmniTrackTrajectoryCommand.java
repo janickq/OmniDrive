@@ -45,7 +45,7 @@ import java.util.function.Supplier;
  */
 
 @SuppressWarnings({"PMD.TooManyFields", "MemberName"})
-public class OmniControllerCommand extends CommandBase {
+public class OmniTrackTrajectoryCommand extends CommandBase {
   private final Timer m_timer = new Timer();
   private final static OmniDrive m_drive = RobotContainer.m_omnidrive;
   private ChassisSpeeds m_prevSpeeds;
@@ -53,7 +53,7 @@ public class OmniControllerCommand extends CommandBase {
   private Pose2d m_finalPose;
   private double curTime;
 
-  private final Trajectory m_trajectory;
+  private final Supplier<Trajectory> m_trajectory;
   private final Supplier<Pose2d> m_pose;
   private final SimpleMotorFeedforward m_feedforward;
   private final PIDController m_xController;
@@ -85,7 +85,8 @@ public class OmniControllerCommand extends CommandBase {
    */
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "ParameterName"})
-  public OmniControllerCommand(Trajectory trajectory,
+  public OmniTrackTrajectoryCommand(
+                                Supplier<Trajectory> trajectory,
                                 Supplier<Pose2d> pose,
                                 PIDController xController,
                                 PIDController yController,
@@ -107,10 +108,10 @@ public class OmniControllerCommand extends CommandBase {
   @Override
   public void initialize() {
     System.out.println("OmniControllerCommandInit");
-    var initialState = m_trajectory.sample(0);
+    var initialState = m_trajectory.get().sample(0);
 
     // Sample final pose to get robot rotation
-    m_finalPose = m_trajectory.sample(m_trajectory.getTotalTimeSeconds()).poseMeters;
+    m_finalPose = m_trajectory.get().sample(m_trajectory.get().getTotalTimeSeconds()).poseMeters;
 
     var initialXVelocity = initialState.velocityMetersPerSecond
         * initialState.poseMeters.getRotation().getCos();
@@ -135,7 +136,7 @@ public class OmniControllerCommand extends CommandBase {
     //Check dt... Maybe just use constant 0.02 ???????????????????????????????
     double dt = curTime - m_prevTime;
 
-    var desiredState = m_trajectory.sample(curTime);
+    var desiredState = m_trajectory.get().sample(curTime);
     var desiredPose = desiredState.poseMeters;
 
     var poseError = desiredPose.relativeTo(m_pose.get());
@@ -180,7 +181,7 @@ public class OmniControllerCommand extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return m_timer.hasElapsed(m_trajectory.getTotalTimeSeconds());
+    return m_timer.hasElapsed(m_trajectory.get().getTotalTimeSeconds());
   }
 }
 

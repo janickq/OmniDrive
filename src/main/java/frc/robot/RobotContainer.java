@@ -9,6 +9,9 @@ package frc.robot;
 
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Astar.AStarAlgorithm;
+import frc.robot.Astar.Grid;
+import frc.robot.Astar.Tile;
 import frc.robot.commands.TeleCmd;
 import frc.robot.commands.auto.AutoMainCmd;
 import frc.robot.commands.gamepad.OI;
@@ -28,13 +31,35 @@ public class RobotContainer {
   public final static TeleCmd m_teleCmd = new TeleCmd(m_omnidrive, m_oi);
   public final static AutoMainCmd m_autoCmd = new AutoMainCmd();
 
+  public static final int X_SIZE = 45;
+  public static final int Y_SIZE = 90;
+  //Create grid
+  public static Grid m_Grid = new Grid(X_SIZE, Y_SIZE);
+  public static AStarAlgorithm m_Astar;
+        
 
   public RobotContainer()
   {
-      //Create new instances
+    //Create new instances
 
-      //Set the default command for the hardware subsytem
-      //m_omnidrive.setDefaultCommand(m_teleCmd);
+    //Set the default command for the hardware subsytem
+    //m_omnidrive.setDefaultCommand(m_teleCmd);
+
+    //Init Astar grid
+    //Pre assign neighbours
+    for (Tile t : m_Grid.getTiles()) {
+      t.calculateNeighbours(m_Grid, true);
+    }
+
+    //Add known obstacles here!!!
+    m_Grid.AddObstacle(10,10, 10,4, 0);
+    m_Grid.AddObstacle(10,60, 10,4, Math.PI/4);
+    m_Grid.AddObstacle(40,50, 2,8, 0);
+    m_Grid.ExpandObstacles();
+
+    //Create solver
+    m_Astar = new AStarAlgorithm(m_Grid);
+
   }
 
   /**

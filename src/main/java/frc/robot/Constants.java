@@ -39,6 +39,6 @@ public final class Constants
 
     //PIDs
     public static final int PID_NUM = 3;
-    public static final double PID_DT = 0.02;
-    public static final boolean PID_THREAD = false;
+    public static final double PID_DT = 0.01;
+    public static final boolean PID_THREAD = true;
 }
